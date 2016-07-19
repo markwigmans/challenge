@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.ximedes.cl</groupId>
+    <groupId>com.ximedes.sva</groupId>
     <artifactId>challenge</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -13,14 +13,27 @@
     <parent>
         <groupId>io.spring.platform</groupId>
         <artifactId>platform-bom</artifactId>
-        <version>2.0.5.RELEASE</version>
-        <relativePath/>
+        <version>2.0.6.RELEASE</version>
     </parent>
+
+    <scm>
+        <url>https://github.com/markwigmans/challenge</url>
+        <connection>scm:git:git://github.com/markwigmans/challenge.git</connection>
+        <developerConnection>scm:git:git@github.com:markwigmans/challenge.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <email>mark.wigmans@gmail.com</email>
+            <name>Mark Wigmans</name>
+            <url>https://github.com/markwigmans</url>
+            <id>mawi</id>
+        </developer>
+    </developers>
 
     <properties>
         <java.version>1.8</java.version>
-
-        <akka.version>2.4.7</akka.version>
+        <akka.version>2.4.8</akka.version>
     </properties>
 
     <profiles>
@@ -36,7 +49,7 @@
     <dependencyManagement>
         <dependencies>
 
-            <!-- akka -->
+            <!-- com.ximedes.sva.akka -->
             <dependency>
                 <groupId>com.typesafe.akka</groupId>
                 <artifactId>akka-actor_2.11</artifactId>
@@ -73,7 +86,7 @@
                 <version>2.1.2</version>
                 <scope>test</scope>
             </dependency>
-            
+
         </dependencies>
     </dependencyManagement>
 
