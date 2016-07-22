@@ -15,24 +15,24 @@
  * limitations under the License.
  * ****************************************************************************
  */
-package com.ximedes.sva.akka;
+package com.ximedes.sva.backend;
 
-import akka.actor.ActorSystem;
+import com.ximedes.sva.BuildInfo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 
+
+/**
+ * TODO: For improvements regarding startup time see {@linktourl http://www.alexecollins.com/spring-boot-performance/}
+ */
 @SpringBootApplication
-public class Application {
+@ComponentScan(basePackageClasses = {BackendConfig.class, BuildInfo.class})
+public class BackendApplication {
     /**
      * Start the whole application
      */
     public static void main(final String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-
-    @Bean
-    ActorSystem actorSystem() {
-        return ActorSystem.create("Akka_SVA-System");
+        SpringApplication.run(BackendApplication.class, args);
     }
 }

@@ -1,4 +1,4 @@
-package com.ximedes.sva.akka.actor;
+package com.ximedes.sva.actor;
 
 import akka.actor.AbstractActor;
 import akka.actor.OneForOneStrategy;

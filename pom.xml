@@ -48,11 +48,30 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.ximedes.sva</groupId>
+                <artifactId>shared</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
 
-            <!-- com.ximedes.sva.akka -->
             <dependency>
                 <groupId>com.typesafe.akka</groupId>
                 <artifactId>akka-actor_2.11</artifactId>
+                <version>${akka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-persistence_2.11</artifactId>
+                <version>${akka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-cluster_2.11</artifactId>
+                <version>${akka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-remote_2.11</artifactId>
                 <version>${akka.version}</version>
             </dependency>
             <dependency>
@@ -63,6 +82,12 @@
             <dependency>
                 <groupId>com.typesafe.akka</groupId>
                 <artifactId>akka-testkit_2.11</artifactId>
+                <version>${akka.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-multi-node-testkit_2.11</artifactId>
                 <version>${akka.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -90,20 +115,40 @@
         </dependencies>
     </dependencyManagement>
 
+
     <build>
         <finalName>${project.artifactId}</finalName>
 
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>buildnumber-maven-plugin</artifactId>
+                    <version>1.4</version>
+                    <executions>
+                        <execution>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>create-metadata</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <revisionOnScmFailure>SNAPSHOT</revisionOnScmFailure>
+                        <shortRevisionLength>8</shortRevisionLength>
+                        <attach>true</attach>
+                        <addOutputDirectoryToResources>true</addOutputDirectoryToResources>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
 
     <modules>
-        <module>akka</module>
+        <module>shared</module>
+        <module>frontend</module>
+        <module>backend</module>
     </modules>
 
 </project>

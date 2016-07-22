@@ -1,4 +1,4 @@
-package com.ximedes.sva.akka.actor;
+package com.ximedes.sva.frontend.actor;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -24,7 +24,7 @@ public class ActorManager {
     ActorManager(final ActorSystem system, final Timeout timeout) throws Exception {
         super();
         this.ec = system.dispatcher();
-        this.supervisor = system.actorOf(com.ximedes.sva.akka.actor.Supervisor.props());
+        this.supervisor = system.actorOf(com.ximedes.sva.frontend.actor.Supervisor.props());
     }
 
     public ExecutionContext getEc() {

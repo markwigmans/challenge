@@ -1,4 +1,4 @@
-package com.ximedes.sva.akka.api.message;
+package com.ximedes.sva.frontend.message;
 
 import lombok.Value;
 

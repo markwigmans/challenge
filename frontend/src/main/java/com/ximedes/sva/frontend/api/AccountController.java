@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.ximedes.sva.akka.api;
+package com.ximedes.sva.frontend.api;
 
-import com.ximedes.sva.akka.api.message.Account;
-import com.ximedes.sva.akka.api.message.Transfer;
-import com.ximedes.sva.akka.service.TransferService;
+import com.ximedes.sva.frontend.message.Account;
+import com.ximedes.sva.frontend.service.AccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -27,37 +26,42 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.UUID;
 
 /**
  *
  */
 @RestController
 @Slf4j
-public class TransferController {
+public class AccountController {
 
-    private final TransferService transferService;
+    private final AccountService accountService;
 
     @Autowired
-    public TransferController(final TransferService transferService) {
-        this.transferService = transferService;
+    public AccountController(final AccountService accountService) {
+        this.accountService = accountService;
     }
 
-    @RequestMapping(value = "/transfer", method = RequestMethod.POST)
-    public ResponseEntity createTransfer(@RequestBody Transfer request) {
-        log.debug("createTransfer({})", request);
+    @RequestMapping(value = "/account", method = RequestMethod.POST)
+    public ResponseEntity createAccount(@RequestBody Account request) {
+        log.debug("createAccount({})", request);
 
-        final String transferId = UUID.randomUUID().toString();
-        final URI location = UriComponentsBuilder.newInstance().pathSegment("/transfer", transferId).build().encode().toUri();
+        final Account account = accountService.createAccount();
+
+        final URI location = UriComponentsBuilder.newInstance().pathSegment("/account", account.getAccountId()).build().encode().toUri();
         final HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setLocation(location);
         return new ResponseEntity(responseHeaders, HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/transfer", method = RequestMethod.GET)
-    public ResponseEntity<Account> queryTransfer(@RequestParam String transferId) {
-        log.debug("queryTransfer({})", transferId);
+    @RequestMapping(value = "/account", method = RequestMethod.GET)
+    public ResponseEntity<Account> queryAccount(@RequestParam String accountId) {
+        log.debug("queryAccount({})", accountId);
 
-        return new ResponseEntity(HttpStatus.NOT_FOUND);
+        final Account account = accountService.queryAccount(accountId);
+        if (account != null) {
+            return new ResponseEntity(account, HttpStatus.OK);
+        } else {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
     }
 }

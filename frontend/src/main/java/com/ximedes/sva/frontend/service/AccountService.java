@@ -1,4 +1,4 @@
-/**
+/******************************************************************************
  * Copyright 2014,2015 Mark Wigmans
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,11 +12,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * <p>
- * All Akka actors of the system
- */
+ ******************************************************************************/
+package com.ximedes.sva.frontend.service;
 
-/**
- * All Akka actors of the system
- */
-package com.ximedes.sva.akka.actor;
+import com.ximedes.sva.frontend.message.Account;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AccountService {
+
+    public Account createAccount() {
+        // TODO
+        return null;
+    }
+
+    public Account queryAccount(final String accountId) {
+        // TODO
+        return null;
+    }
+}

@@ -1,4 +1,4 @@
-/******************************************************************************
+/**
  * Copyright 2014,2015 Mark Wigmans
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
-package com.ximedes.sva.akka.service;
+ * <p>
+ * All Akka actors of the system
+ * <p>
+ * All Akka actors of the system
+ * <p>
+ * All Akka actors of the system
+ * <p>
+ * All Akka actors of the system
+ * <p>
+ * All Akka actors of the system
+ */
 
-import org.springframework.stereotype.Service;
-
-@Service
-public class TransferService {
-
-}
+/**
+ * All Akka actors of the system
+ */
+package com.ximedes.sva.frontend.actor;

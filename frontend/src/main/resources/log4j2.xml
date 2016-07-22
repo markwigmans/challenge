@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="30">
+    <Appenders>
+        <Console name="console" follow="true">
+            <PatternLayout pattern="%d %-5p [%t] %c{1.} - %m%n"/>
+            <ThresholdFilter level="info"/>
+        </Console>
+        <File name="file" fileName="frontend.log">
+            <PatternLayout pattern="%d %-5.5p [%t] %-40.40c{1.} - %m%n"/>
+        </File>
+        <Async name="async">
+            <AppenderRef ref="file"/>
+            <AppenderRef ref="console"/>
+        </Async>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.ximedes.sva" level="debug"/>
+
+        <Root level="info">
+            <AppenderRef ref="async"/>
+        </Root>
+    </Loggers>
+</Configuration>

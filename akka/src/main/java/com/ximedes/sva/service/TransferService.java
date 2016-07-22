@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.ximedes.sva.akka.service;
+package com.ximedes.sva.service;
 
-import com.ximedes.sva.akka.api.message.Account;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AccountService {
+public class TransferService {
 
-    public void createAccount(String accountId) {
-    }
-
-    public Account queryAccount(String accountId) {
-        return null;
-    }
 }
