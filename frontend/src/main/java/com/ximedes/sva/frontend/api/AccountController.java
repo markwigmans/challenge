@@ -42,12 +42,13 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/account", method = RequestMethod.POST)
-    public ResponseEntity createAccount(@RequestBody Account request) {
+    public ResponseEntity createAccount(@RequestBody Account request) throws Exception {
         log.debug("createAccount({})", request);
 
-        final Account account = accountService.createAccount();
+        final Account account = accountService.createAccount(request).get();
+        final String accountId = Integer.toString(account.getAccountId());
 
-        final URI location = UriComponentsBuilder.newInstance().pathSegment("/account", account.getAccountId()).build().encode().toUri();
+        final URI location = UriComponentsBuilder.newInstance().pathSegment("/account", accountId).build().encode().toUri();
         final HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setLocation(location);
         return new ResponseEntity(responseHeaders, HttpStatus.ACCEPTED);

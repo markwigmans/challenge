@@ -6,8 +6,11 @@ import akka.actor.Props;
 import akka.actor.SupervisorStrategy;
 import akka.japi.pf.DeciderBuilder;
 import akka.japi.pf.ReceiveBuilder;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
 import scala.concurrent.duration.Duration;
 
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 import static akka.actor.SupervisorStrategy.*;
@@ -37,10 +40,22 @@ public class Supervisor extends AbstractActor {
     }
 
     private Supervisor() {
-        receive(ReceiveBuilder.
-                match(Props.class, props -> {
+        receive(ReceiveBuilder
+                .match(Props.class, props -> {
                     sender().tell(context().actorOf(props), self());
-                }).build()
+                })
+                .match(NamedProps.class, namedProps -> {
+                    sender().tell(context().actorOf(namedProps.props, namedProps.name), self());
+                })
+                .matchAny(this::unhandled)
+                .build()
         );
+    }
+
+    @Value
+    @EqualsAndHashCode
+    public static final class NamedProps implements Serializable {
+        Props props;
+        String name;
     }
 }

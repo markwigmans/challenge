@@ -82,6 +82,10 @@
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-multi-node-testkit_2.11</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.gatling.highcharts</groupId>
+            <artifactId>gatling-charts-highcharts</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -93,6 +97,16 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- gatling tests -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>io.gatling</groupId>
+                <artifactId>gatling-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

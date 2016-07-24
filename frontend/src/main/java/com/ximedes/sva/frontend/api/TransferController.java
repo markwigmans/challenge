@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -43,12 +44,13 @@ public class TransferController {
     }
 
     @RequestMapping(value = "/transfer", method = RequestMethod.POST)
-    public ResponseEntity createTransfer(@RequestBody Transfer request) {
+    public ResponseEntity createTransfer(@RequestBody Transfer request) throws Exception {
         log.debug("createTransfer({})", request);
 
-        final Transfer transfer = transferService.createTransfer();
+        final Transfer transfer = transferService.createTransfer(request).get();
+        final String transferId = Integer.toString(transfer.getTransferId());
 
-        final URI location = UriComponentsBuilder.newInstance().pathSegment("/transfer", transfer.getTransferId()).build().encode().toUri();
+        final URI location = UriComponentsBuilder.newInstance().pathSegment("/transfer", transferId).build().encode().toUri();
         final HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setLocation(location);
         return new ResponseEntity(responseHeaders, HttpStatus.ACCEPTED);

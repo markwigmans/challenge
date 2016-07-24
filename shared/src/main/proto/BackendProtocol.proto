@@ -1,0 +1,51 @@
+option java_package = "com.ximedes.sva.protocol";
+option java_outer_classname = "BackendProtocol";
+option optimize_for = SPEED;
+
+message CreateAccountRequest {
+    optional int32 overdraft = 1;
+}
+message CreateAccountResponse {
+    required int32 accountId = 1;
+}
+
+message QueryAccountRequest {
+    required int32 accountId = 1;
+}
+message QueryAccountResponse {
+    required int32 accountId = 1;
+    optional int32 balance = 2;
+    optional int32 overdraft = 3;
+    enum EnumStatus {
+        CONFIRMED= 1;
+        ACCOUNT_NOT_FOUND = 2;
+    }
+    required EnumStatus status = 4;
+}
+
+message CreateTransferRequest {
+    required int32 from = 1;
+    required int32 to = 2;
+    required int32 amount = 3;
+}
+message CreateTransferResponse {
+    required int32 transferId = 1;
+}
+
+message QueryTransferRequest {
+    required int32 transferId = 1;
+
+}
+message QueryTransferResponse {
+    required int32 transferId = 1;
+    optional int32 from = 2;
+    optional int32 to = 3;
+    optional int32 amount = 4;
+    enum EnumStatus {
+        PENDING = 1;
+        CONFIRMED= 2;
+        INSUFFICIENT_FUNDS = 3;
+        ACCOUNT_NOT_FOUND = 4;
+    }
+    required EnumStatus status = 5;
+}

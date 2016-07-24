@@ -17,22 +17,34 @@
  */
 package com.ximedes.sva.backend;
 
+import akka.actor.ActorSystem;
 import com.ximedes.sva.BuildInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
 
 /**
  * TODO: For improvements regarding startup time see {@linktourl http://www.alexecollins.com/spring-boot-performance/}
  */
-@SpringBootApplication
+@EnableAutoConfiguration
 @ComponentScan(basePackageClasses = {BackendConfig.class, BuildInfo.class})
-public class BackendApplication {
+public class BackendApplication implements CommandLineRunner {
+
+    @Autowired
+    private ActorSystem actorSystem;
+
     /**
      * Start the whole application
      */
     public static void main(final String[] args) {
         SpringApplication.run(BackendApplication.class, args);
+    }
+
+    @Override
+    public void run(String... strings) throws Exception {
+        //actorSystem.actorOf((MetricsListener.props()), "metricsListener");
     }
 }

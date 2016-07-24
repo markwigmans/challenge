@@ -15,15 +15,44 @@
  ******************************************************************************/
 package com.ximedes.sva.frontend.service;
 
+import akka.actor.ActorRef;
+import akka.pattern.PatternsCS;
+import akka.util.Timeout;
+import com.ximedes.sva.frontend.actor.ActorManager;
+import com.ximedes.sva.frontend.message.Account;
 import com.ximedes.sva.frontend.message.Transfer;
+import com.ximedes.sva.protocol.BackendProtocol;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class TransferService {
 
-    public Transfer createTransfer() {
-        // TODO
-        return null;
+    private final ActorRef backendActor;
+    private final Timeout timeout;
+
+    /**
+     * Auto wired constructor
+     */
+    @Autowired
+    public TransferService(final ActorManager actorManager, final Timeout timeout) {
+        this.backendActor = actorManager.getBackendActor();
+        this.timeout = timeout;
+    }
+
+    public CompletableFuture<Transfer> createTransfer(final Transfer request) {
+        final BackendProtocol.CreateTransferRequest message = BackendProtocol.CreateTransferRequest.newBuilder()
+                .setTo(request.getTo())
+                .setFrom(request.getFrom())
+                .setAmount(request.getFrom()).build();
+        final CompletableFuture<Object> ask = PatternsCS.ask(backendActor, message, timeout).toCompletableFuture();
+
+        return ask.thenApply(r -> {
+            BackendProtocol.CreateTransferResponse response = (BackendProtocol.CreateTransferResponse) r;
+            return Transfer.builder().transferId(response.getTransferId()).build();
+        });
     }
 
     public Transfer queryTransfer(final String transferId) {

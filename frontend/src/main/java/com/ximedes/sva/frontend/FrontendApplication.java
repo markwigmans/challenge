@@ -19,6 +19,7 @@ package com.ximedes.sva.frontend;
 
 import com.ximedes.sva.BuildInfo;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
@@ -26,7 +27,7 @@ import org.springframework.context.annotation.ComponentScan;
 /**
  * TODO: For improvements regarding startup time see {@linktourl http://www.alexecollins.com/spring-boot-performance/}
  */
-@SpringBootApplication
+@EnableAutoConfiguration
 @ComponentScan(basePackageClasses = {FrontendConfig.class, BuildInfo.class})
 public class FrontendApplication {
     /**

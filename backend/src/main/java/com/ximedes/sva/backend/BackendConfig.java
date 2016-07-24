@@ -2,6 +2,8 @@ package com.ximedes.sva.backend;
 
 import akka.actor.ActorSystem;
 import akka.util.Timeout;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +24,8 @@ public class BackendConfig {
 
     @Bean
     ActorSystem actorSystem() {
-        return ActorSystem.create("backend");
+        final Config config = ConfigFactory.parseString("akka.cluster.roles = [backend]").withFallback(ConfigFactory.load());
+        return ActorSystem.create("sva-cluster", config);
     }
 
     @Bean
