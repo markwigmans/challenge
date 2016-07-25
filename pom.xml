@@ -205,7 +205,6 @@
                     <version>2.11</version>
                     <configuration>
                         <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
-                        <strictCheck>true</strictCheck>
                         <properties>
                             <owner>Mark Wigmans</owner>
                             <email>mark.wigmans@gmail.com</email>
