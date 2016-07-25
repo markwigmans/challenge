@@ -12,9 +12,9 @@ import lombok.experimental.Builder;
 @Builder
 @Value
 public class Transfer {
-    Integer transferId;
-    Integer from;
-    Integer to;
+    String transferId;
+    String from;
+    String to;
     Integer amount;
 
     @JsonPOJOBuilder(withPrefix = "")

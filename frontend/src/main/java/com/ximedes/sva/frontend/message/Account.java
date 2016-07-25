@@ -12,7 +12,7 @@ import lombok.experimental.Builder;
 @Builder
 @Value
 public class Account {
-    Integer accountId;
+    String accountId;
     Integer balance;
     Integer overdraft;
 

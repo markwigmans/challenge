@@ -107,6 +107,26 @@
             <plugin>
                 <groupId>io.gatling</groupId>
                 <artifactId>gatling-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>init</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                        <configuration>
+                            <simulationClass>sva.InitSimulation</simulationClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>load</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                        <configuration>
+                            <simulationClass>sva.LoadSimulation</simulationClass>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -59,6 +59,7 @@
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
             </plugin>
+
             <!-- disable plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>

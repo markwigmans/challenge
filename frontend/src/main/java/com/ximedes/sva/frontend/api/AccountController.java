@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -46,19 +47,17 @@ public class AccountController {
         log.debug("createAccount({})", request);
 
         final Account account = accountService.createAccount(request).get();
-        final String accountId = Integer.toString(account.getAccountId());
-
-        final URI location = UriComponentsBuilder.newInstance().pathSegment("/account", accountId).build().encode().toUri();
+        final URI location = UriComponentsBuilder.newInstance().pathSegment("/account", account.getAccountId()).build().encode().toUri();
         final HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setLocation(location);
         return new ResponseEntity(responseHeaders, HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/account", method = RequestMethod.GET)
-    public ResponseEntity<Account> queryAccount(@RequestParam String accountId) {
+    @RequestMapping(value = "/account/{accountId}", method = RequestMethod.GET)
+    public ResponseEntity<Account> queryAccount(@PathVariable String accountId) throws Exception {
         log.debug("queryAccount({})", accountId);
 
-        final Account account = accountService.queryAccount(accountId);
+        final Account account = accountService.queryAccount(accountId).get();
         if (account != null) {
             return new ResponseEntity(account, HttpStatus.OK);
         } else {

@@ -27,43 +27,26 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.concurrent.ExecutionException;
 
 /**
  *
  */
 @RestController
 @Slf4j
-public class TransferController {
+public class TransactionController {
 
     private final TransferService transferService;
 
     @Autowired
-    public TransferController(final TransferService transferService) {
+    public TransactionController(final TransferService transferService) {
         this.transferService = transferService;
     }
 
-    @RequestMapping(value = "/transfer", method = RequestMethod.POST)
-    public ResponseEntity createTransfer(@RequestBody Transfer request) throws Exception {
-        log.debug("createTransfer({})", request);
+    @RequestMapping(value = "/transaction/{transactionId}", method = RequestMethod.GET)
+    public ResponseEntity<Account> queryTransaction(@RequestParam String transactionId) {
+        log.debug("queryTransaction({})", transactionId);
 
-        final Transfer transfer = transferService.createTransfer(request).get();
-        final URI location = UriComponentsBuilder.newInstance().pathSegment("/transfer", transfer.getTransferId()).build().encode().toUri();
-        final HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.setLocation(location);
-        return new ResponseEntity(responseHeaders, HttpStatus.ACCEPTED);
-    }
-
-    @RequestMapping(value = "/transfer/{transferId}", method = RequestMethod.GET)
-    public ResponseEntity<Account> queryTransfer(@PathVariable String transferId) {
-        log.debug("queryTransfer({})", transferId);
-
-        final Transfer transfer = transferService.queryTransfer(transferId);
-
-        if (transfer != null) {
-            return new ResponseEntity(transfer, HttpStatus.OK);
-        } else {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
+        // TODO
+        return null;
     }
 }

@@ -19,7 +19,6 @@ import akka.actor.ActorRef;
 import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import com.ximedes.sva.frontend.actor.ActorManager;
-import com.ximedes.sva.frontend.message.Account;
 import com.ximedes.sva.frontend.message.Transfer;
 import com.ximedes.sva.protocol.BackendProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,14 +43,14 @@ public class TransferService {
 
     public CompletableFuture<Transfer> createTransfer(final Transfer request) {
         final BackendProtocol.CreateTransferRequest message = BackendProtocol.CreateTransferRequest.newBuilder()
-                .setTo(request.getTo())
-                .setFrom(request.getFrom())
-                .setAmount(request.getFrom()).build();
+                .setTo(Integer.parseInt(request.getTo()))
+                .setFrom(Integer.parseInt(request.getFrom()))
+                .setAmount(request.getAmount()).build();
         final CompletableFuture<Object> ask = PatternsCS.ask(backendActor, message, timeout).toCompletableFuture();
 
         return ask.thenApply(r -> {
             BackendProtocol.CreateTransferResponse response = (BackendProtocol.CreateTransferResponse) r;
-            return Transfer.builder().transferId(response.getTransferId()).build();
+            return Transfer.builder().transferId(Integer.toString(response.getTransferId())).build();
         });
     }
 

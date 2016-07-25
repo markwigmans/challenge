@@ -1,7 +1,6 @@
 package com.ximedes.sva.frontend.service;
 
 import akka.actor.ActorRef;
-import akka.actor.Props;
 import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import com.ximedes.sva.frontend.actor.ActorManager;
@@ -12,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by mawi on 24/07/2016.

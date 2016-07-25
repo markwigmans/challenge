@@ -48,14 +48,23 @@ public class AccountService {
 
         return ask.thenApply(r -> {
             BackendProtocol.CreateAccountResponse response = (BackendProtocol.CreateAccountResponse) r;
-            return Account.builder().accountId(response.getAccountId()).build();
+            return Account.builder().accountId(Integer.toString(response.getAccountId())).build();
         });
     }
 
 
-    public Account queryAccount(final String accountId) {
+    public CompletableFuture<Account> queryAccount(final String accountId) {
+        final int id = Integer.parseInt(accountId);
+        final BackendProtocol.QueryAccountRequest message = BackendProtocol.QueryAccountRequest.newBuilder().setAccountId(id).build();
+        final CompletableFuture<Object> ask = PatternsCS.ask(backendActor, message, timeout).toCompletableFuture();
 
-        // TODO
-        return null;
+        return ask.thenApply(r -> {
+            BackendProtocol.QueryAccountResponse response = (BackendProtocol.QueryAccountResponse) r;
+            return Account.builder()
+                    .accountId(Integer.toString(response.getAccountId()))
+                    .balance(response.getBalance())
+                    .overdraft(response.getOverdraft())
+                    .build();
+        });
     }
 }
