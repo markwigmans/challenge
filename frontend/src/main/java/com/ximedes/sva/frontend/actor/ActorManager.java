@@ -21,10 +21,7 @@ import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import scala.concurrent.Await;
 import scala.concurrent.ExecutionContext;
-
-import static akka.pattern.Patterns.ask;
 
 /**
  * Created by mawi on 13/11/2015.
@@ -44,8 +41,8 @@ public class ActorManager {
         super();
         this.ec = system.dispatcher();
         this.supervisor = system.actorOf(Supervisor.props());
-        this.backendActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(LocalBackendActor.props(), "backendActor"), timeout)
-                .toCompletableFuture().get();
+        this.backendActor = (ActorRef) PatternsCS.ask(supervisor,
+                new Supervisor.NamedProps(LocalBackendActor.props(), "backendActor"), timeout).toCompletableFuture().get();
     }
 
     public ActorRef getBackendActor() {
