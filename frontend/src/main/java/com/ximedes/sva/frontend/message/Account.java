@@ -17,8 +17,8 @@ package com.ximedes.sva.frontend.message;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Builder;
 import lombok.Value;
-import lombok.experimental.Builder;
 
 /**
  * Created by mawi on 19/07/2016.

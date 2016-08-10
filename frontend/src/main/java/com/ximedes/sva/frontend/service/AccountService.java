@@ -20,16 +20,19 @@ import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import com.ximedes.sva.frontend.actor.ActorManager;
 import com.ximedes.sva.frontend.message.Account;
-import com.ximedes.sva.protocol.BackendProtocol;
+import static com.ximedes.sva.protocol.BackendProtocol.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 
+import static com.ximedes.sva.protocol.BackendProtocol.*;
+
 @Service
 public class AccountService {
 
-    private final ActorRef backendActor;
+    private final ActorRef ledgerActor;
+    private final ActorRef idActor;
     private final Timeout timeout;
 
     /**
@@ -37,29 +40,30 @@ public class AccountService {
      */
     @Autowired
     public AccountService(final ActorManager actorManager, final Timeout timeout) {
-        this.backendActor = actorManager.getBackendActor();
+        this.ledgerActor = actorManager.getLedgerActor();
+        this.idActor = actorManager.getLocalIdActor();
         this.timeout = timeout;
     }
 
     public CompletableFuture<Account> createAccount(final Account request) throws Exception {
         final int overDraft = request.getOverdraft() == null ? 0 : request.getOverdraft();
-        final BackendProtocol.CreateAccountRequest message = BackendProtocol.CreateAccountRequest.newBuilder().setOverdraft(overDraft).build();
-        final CompletableFuture<Object> ask = PatternsCS.ask(backendActor, message, timeout).toCompletableFuture();
+        final IdRequest idRequest = IdRequest.newBuilder().setType(IdType.ACCOUNTS).build();
+        final CompletableFuture<Object> ask = PatternsCS.ask(idActor, idRequest, timeout).toCompletableFuture();
 
         return ask.thenApply(r -> {
-            BackendProtocol.CreateAccountResponse response = (BackendProtocol.CreateAccountResponse) r;
-            return Account.builder().accountId(Integer.toString(response.getAccountId())).build();
+            final IdResponse response = (IdResponse) r;
+            ledgerActor.tell(CreateAccountMessage.newBuilder().setAccountId(response.getId()).setOverdraft(overDraft).build(), ActorRef.noSender());
+            return Account.builder().accountId(Integer.toString(response.getId())).build();
         });
     }
 
-
     public CompletableFuture<Account> queryAccount(final String accountId) {
         final int id = Integer.parseInt(accountId);
-        final BackendProtocol.QueryAccountRequest message = BackendProtocol.QueryAccountRequest.newBuilder().setAccountId(id).build();
-        final CompletableFuture<Object> ask = PatternsCS.ask(backendActor, message, timeout).toCompletableFuture();
+        final QueryAccountRequest message = QueryAccountRequest.newBuilder().setAccountId(id).build();
+        final CompletableFuture<Object> ask = PatternsCS.ask(ledgerActor, message, timeout).toCompletableFuture();
 
         return ask.thenApply(r -> {
-            BackendProtocol.QueryAccountResponse response = (BackendProtocol.QueryAccountResponse) r;
+            final QueryAccountResponse response = (QueryAccountResponse) r;
             return Account.builder()
                     .accountId(Integer.toString(response.getAccountId()))
                     .balance(response.getBalance())

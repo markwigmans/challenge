@@ -20,16 +20,18 @@ import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import com.ximedes.sva.frontend.actor.ActorManager;
 import com.ximedes.sva.frontend.message.Transfer;
-import com.ximedes.sva.protocol.BackendProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 
+import static com.ximedes.sva.protocol.BackendProtocol.*;
+
 @Service
 public class TransferService {
 
-    private final ActorRef backendActor;
+    private final ActorRef ledgerActor;
+    private final ActorRef idActor;
     private final Timeout timeout;
 
     /**
@@ -37,20 +39,24 @@ public class TransferService {
      */
     @Autowired
     public TransferService(final ActorManager actorManager, final Timeout timeout) {
-        this.backendActor = actorManager.getBackendActor();
+        this.ledgerActor = actorManager.getLedgerActor();
+        this.idActor = actorManager.getLocalIdActor();
         this.timeout = timeout;
     }
 
     public CompletableFuture<Transfer> createTransfer(final Transfer request) {
-        final BackendProtocol.CreateTransferRequest message = BackendProtocol.CreateTransferRequest.newBuilder()
-                .setTo(Integer.parseInt(request.getTo()))
-                .setFrom(Integer.parseInt(request.getFrom()))
-                .setAmount(request.getAmount()).build();
-        final CompletableFuture<Object> ask = PatternsCS.ask(backendActor, message, timeout).toCompletableFuture();
+        final IdRequest idRequest = IdRequest.newBuilder().setType(IdType.TRANSFERS).build();
+        final CompletableFuture<Object> ask = PatternsCS.ask(idActor, idRequest, timeout).toCompletableFuture();
 
         return ask.thenApply(r -> {
-            BackendProtocol.CreateTransferResponse response = (BackendProtocol.CreateTransferResponse) r;
-            return Transfer.builder().transferId(Integer.toString(response.getTransferId())).build();
+            final IdResponse response = (IdResponse) r;
+            final CreateTransferMessage message = CreateTransferMessage.newBuilder()
+                    .setTransferId(response.getId())
+                    .setTo(Integer.parseInt(request.getTo()))
+                    .setFrom(Integer.parseInt(request.getFrom()))
+                    .setAmount(request.getAmount()).build();
+            ledgerActor.tell(message, ActorRef.noSender());
+            return Transfer.builder().transferId(Integer.toString(response.getId())).build();
         });
     }
 

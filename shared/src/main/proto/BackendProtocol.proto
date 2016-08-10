@@ -2,18 +2,17 @@ option java_package = "com.ximedes.sva.protocol";
 option java_outer_classname = "BackendProtocol";
 option optimize_for = SPEED;
 
-message CreateAccountRequest {
-    optional int32 overdraft = 1;
-}
-message CreateAccountResponse {
-    required int32 accountId = 1;
+message CreateAccountMessage {
+    required int32 account_id = 1;
+    // make default value '0' if possible
+    required int32 overdraft = 2;
 }
 
 message QueryAccountRequest {
-    required int32 accountId = 1;
+    required int32 account_id = 1;
 }
 message QueryAccountResponse {
-    required int32 accountId = 1;
+    required int32 account_id = 1;
     optional int32 balance = 2;
     optional int32 overdraft = 3;
     enum EnumStatus {
@@ -23,21 +22,19 @@ message QueryAccountResponse {
     required EnumStatus status = 4;
 }
 
-message CreateTransferRequest {
-    required int32 from = 1;
-    required int32 to = 2;
-    required int32 amount = 3;
-}
-message CreateTransferResponse {
-    required int32 transferId = 1;
+message CreateTransferMessage {
+    required int32 transfer_id = 1;
+    required int32 from = 2;
+    required int32 to = 3;
+    required int32 amount = 4;
 }
 
 message QueryTransferRequest {
-    required int32 transferId = 1;
+    required int32 transfer_id = 1;
 
 }
 message QueryTransferResponse {
-    required int32 transferId = 1;
+    required int32 transfer_id = 1;
     optional int32 from = 2;
     optional int32 to = 3;
     optional int32 amount = 4;
@@ -48,4 +45,34 @@ message QueryTransferResponse {
         ACCOUNT_NOT_FOUND = 4;
     }
     required EnumStatus status = 5;
+}
+
+enum IdType {
+    ACCOUNTS = 1;
+    TRANSFERS = 2;
+}
+
+message IdRequest {
+    required IdType type = 1;
+}
+
+message IdResponse {
+    required IdType type = 1;
+    optional int32 id = 2;
+}
+
+message IdRangeRequest {
+    required IdType type = 1;
+    required int32 ids = 2;
+}
+
+message IdRangeResponse {
+    required IdType type = 1;
+    repeated int32 id = 2;
+}
+
+// return given ID's to the pool
+message IdReturnMessage {
+    required IdType type = 1;
+    repeated int32 id = 2;
 }

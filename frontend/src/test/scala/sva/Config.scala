@@ -32,6 +32,11 @@ object Config {
 
   // Number of runs per user during initialisation
   val initUsers = 100
+  /*
+  val accounts = 29700
+  val merchants = 300
+  val initUsers = 10
+  */
 
   val transfers = 1000000
   val loadUsers = 100

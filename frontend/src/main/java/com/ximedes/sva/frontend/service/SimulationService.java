@@ -19,13 +19,13 @@ import akka.actor.ActorRef;
 import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import com.ximedes.sva.frontend.actor.ActorManager;
-import lombok.EqualsAndHashCode;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
+
+import static com.ximedes.sva.protocol.SimulationProtocol.Reset;
 
 /**
  * Created by mawi on 24/07/2016.
@@ -33,30 +33,18 @@ import java.io.Serializable;
 @Service
 @Slf4j
 public class SimulationService {
-    private final ActorRef backendActor;
-    private final Timeout timeout;
+    private final ActorRef resetActor;
 
     /**
      * Auto wired constructor
      */
     @Autowired
-    public SimulationService(final ActorManager actorManager, final Timeout timeout) {
-        this.backendActor = actorManager.getBackendActor();
-        this.timeout = timeout;
+    public SimulationService(final ActorManager actorManager) {
+        this.resetActor = actorManager.getResetActor();
     }
 
     public void reset() throws Exception {
         log.info("Reset simulation");
-        PatternsCS.ask(backendActor, new Reset(), timeout).toCompletableFuture().get();
-    }
-
-    @Value
-    @EqualsAndHashCode
-    public static final class Reset implements Serializable {
-    }
-
-    @Value
-    @EqualsAndHashCode
-    public static final class Resetted implements Serializable {
+        PatternsCS.ask(resetActor, Reset.getDefaultInstance(), Timeout.apply(1, TimeUnit.SECONDS)).toCompletableFuture().get();
     }
 }

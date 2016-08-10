@@ -13,7 +13,7 @@ import static akka.pattern.Patterns.ask;
 /**
  * Created by mawi on 13/11/2015.
  */
-@Component
+@Component("backendActorManager")
 public class ActorManager {
 
     private final ExecutionContext ec;

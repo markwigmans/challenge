@@ -18,34 +18,68 @@ package com.ximedes.sva.frontend.actor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.pattern.PatternsCS;
+import akka.routing.RoundRobinPool;
 import akka.util.Timeout;
+import com.ximedes.sva.backend.actor.IdActor;
+import com.ximedes.sva.backend.actor.LedgerActor;
+import com.ximedes.sva.frontend.FrontendConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import scala.concurrent.ExecutionContext;
 
 /**
  * Created by mawi on 13/11/2015.
  */
-@Component
+@Component("frontendActorManager")
 public class ActorManager {
 
-    private final ExecutionContext ec;
+    private final int localIdActorPool;
+    private final int accountPoolSize;
+    private final int transferPoolSize;
+
     private final ActorRef supervisor;
-    private final ActorRef backendActor;
+    private final ActorRef ledgerActor;
+    private final ActorRef idActor;
+    private final ActorRef localIdActor;
+    private final ActorRef localIdActorRouter;
+    private final ActorRef resetActor;
+
 
     /**
      * Auto wired constructor
      */
     @Autowired
-    ActorManager(final ActorSystem system, final Timeout timeout) throws Exception {
+    ActorManager(final ActorSystem system, final Timeout timeout, final FrontendConfig config) throws Exception {
         super();
-        this.ec = system.dispatcher();
+        this.localIdActorPool = config.getLocalIdActorPool();
+        this.accountPoolSize = config.getAccountPoolSize();
+        this.transferPoolSize = config.getTransferPoolSize();
+
         this.supervisor = system.actorOf(Supervisor.props());
-        this.backendActor = (ActorRef) PatternsCS.ask(supervisor,
-                new Supervisor.NamedProps(LocalBackendActor.props(), "backendActor"), timeout).toCompletableFuture().get();
+        this.ledgerActor = (ActorRef) PatternsCS.ask(supervisor,
+                new Supervisor.NamedProps(LedgerActor.props(), "backendActor"), timeout).toCompletableFuture().get();
+        this.idActor = (ActorRef) PatternsCS.ask(supervisor,
+                new Supervisor.NamedProps(IdActor.props(accountPoolSize, transferPoolSize), "idActor"), timeout).toCompletableFuture().get();
+
+        // TODO supervisor
+        this.localIdActorRouter = system.actorOf(new RoundRobinPool(localIdActorPool).props(LocalIdActor.props(idActor)), "localIdActorRouter");
+
+
+        this.localIdActor = (ActorRef) PatternsCS.ask(supervisor,
+                new Supervisor.NamedProps(LocalIdActor.props(idActor), "localIdActor"), timeout).toCompletableFuture().get();
+
+        this.resetActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(ResetActor.props(), "resetActor"), timeout).toCompletableFuture().get();
     }
 
-    public ActorRef getBackendActor() {
-        return backendActor;
+    public ActorRef getLedgerActor() {
+        return ledgerActor;
+    }
+
+    public ActorRef getLocalIdActor() {
+        //return localIdActor;
+        return localIdActorRouter;
+    }
+
+    public ActorRef getResetActor() {
+        return resetActor;
     }
 }

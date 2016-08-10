@@ -19,10 +19,8 @@ import akka.actor.ActorSystem;
 import akka.util.Timeout;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import com.ximedes.sva.BuildInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.TimeUnit;
@@ -36,8 +34,18 @@ public class FrontendConfig {
     /**
      * Default timeout for processing calls.
      */
-    @Value("${frontend.actor.ask.timeout.ms:500}")
+    @Value("${frontend.actor.ask.timeout.ms:5000}")
     private int timeout;
+
+    @Value("${frontend.actor.idActor.pool:5}")
+    private int localIdActorPool;
+
+    // TODO use for ledger as well
+    @Value("${frontend.account.pool:350000}")
+    private int accountPoolSize;
+
+    @Value("${frontend.transfer.pool:1000000}")
+    private int transferPoolSize;
 
     @Bean
     ActorSystem actorSystem() {
@@ -48,5 +56,17 @@ public class FrontendConfig {
     @Bean
     Timeout timeout() {
         return Timeout.apply(timeout, TimeUnit.MILLISECONDS);
+    }
+
+    public int getLocalIdActorPool() {
+        return localIdActorPool;
+    }
+
+    public int getAccountPoolSize() {
+        return accountPoolSize;
+    }
+
+    public int getTransferPoolSize() {
+        return transferPoolSize;
     }
 }
