@@ -4,7 +4,7 @@
 
     <groupId>com.ximedes.sva</groupId>
     <artifactId>challenge</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>pom</packaging>
 
     <parent>
@@ -53,12 +53,12 @@
             <dependency>
                 <groupId>com.ximedes.sva</groupId>
                 <artifactId>shared</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0</version>
             </dependency>
             <dependency>
                 <groupId>com.ximedes.sva</groupId>
                 <artifactId>backend</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0</version>
             </dependency>
 
             <dependency>
@@ -122,12 +122,6 @@
                 <version>2.6.1</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.openjdk.jmh</groupId>
-                <artifactId>jmh-core</artifactId>
-                <version>1.13</version>
-            </dependency>
-
             <!-- test frameworks -->
             <dependency>
                 <groupId>com.jayway.restassured</groupId>
@@ -153,7 +147,6 @@
                 <version>2.2.2</version>
                 <scope>test</scope>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
@@ -223,6 +216,7 @@
                     <version>2.2.0</version>
                 </plugin>
 
+                <!-- generate License text in files -->
                 <plugin>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>

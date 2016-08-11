@@ -1,29 +1,44 @@
+/**
+ * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.ximedes.sva.backend.actor;
 
 import akka.actor.AbstractLoggingActor;
-import akka.actor.ActorSelection;
-import akka.actor.Identify;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.google.protobuf.TextFormat;
-import static com.ximedes.sva.protocol.BackendProtocol.*;
-import static com.ximedes.sva.protocol.SimulationProtocol.*;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.ximedes.sva.protocol.BackendProtocol.*;
+import static com.ximedes.sva.protocol.SimulationProtocol.Reset;
+import static com.ximedes.sva.protocol.SimulationProtocol.Resetted;
 
 /**
  * Created by mawi on 06/08/2016.
  */
 public class LedgerActor extends AbstractLoggingActor {
-    private static final int ACCOUNTS  = 310000;
+    private static final int ACCOUNTS = 310000;
     private static final int TRANSFERS = 1000000;
 
     private final int[] balance = new int[ACCOUNTS];
     private final int[] overdraft = new int[ACCOUNTS];
 
     // TODO mus it be a map?
-    private final Map<Integer,byte[]> transfers = new HashMap(TRANSFERS,0.9f);
+    private final Map<Integer, byte[]> transfers = new HashMap(TRANSFERS, 0.9f);
 
     /**
      * Create Props for an actor of this type.
@@ -75,7 +90,7 @@ public class LedgerActor extends AbstractLoggingActor {
                 .setOverdraft(overdraft[id])
                 .setStatus(QueryAccountResponse.EnumStatus.CONFIRMED)
                 .build();
-        sender().tell(response,self());
+        sender().tell(response, self());
     }
 
     void processTransfer(final CreateTransferMessage request) {
@@ -83,18 +98,18 @@ public class LedgerActor extends AbstractLoggingActor {
 
         // process message
         final boolean transferred = transfer(request.getFrom(), request.getTo(), request.getAmount());
-        storeTransfer(request,transferred);
+        storeTransfer(request, transferred);
     }
 
     boolean transfer(int from, int to, int amount) {
         // check balance
         if (balance[from] + overdraft[from] - amount >= 0) {
-            log().info("sufficient funds: [{},{},{}]", from,to,amount);
+            log().info("sufficient funds: [{},{},{}]", from, to, amount);
             balance[from] -= amount;
-            balance[to]   += amount;
+            balance[to] += amount;
             return true;
         } else {
-            log().warning("insufficient funds: [{},{},{}]", from,to,amount);
+            log().warning("insufficient funds: [{},{},{}]", from, to, amount);
             return false;
         }
     }
@@ -103,7 +118,7 @@ public class LedgerActor extends AbstractLoggingActor {
         QueryTransferResponse.EnumStatus status = transferred
                 ? QueryTransferResponse.EnumStatus.CONFIRMED
                 : QueryTransferResponse.EnumStatus.INSUFFICIENT_FUNDS;
-        QueryTransferResponse message =  QueryTransferResponse.newBuilder()
+        QueryTransferResponse message = QueryTransferResponse.newBuilder()
                 .setTransferId(request.getTransferId())
                 .setFrom(request.getFrom())
                 .setTo(request.getTo())
@@ -111,7 +126,7 @@ public class LedgerActor extends AbstractLoggingActor {
                 .setStatus(status)
                 .build();
 
-        transfers.put(request.getTransferId(),message.toByteArray());
+        transfers.put(request.getTransferId(), message.toByteArray());
     }
 
     private void queryTransfer(QueryTransferRequest request) {

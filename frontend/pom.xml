@@ -24,7 +24,7 @@
     <parent>
         <groupId>com.ximedes.sva</groupId>
         <artifactId>challenge</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0</version>
     </parent>
 
     <groupId>com.ximedes.sva</groupId>
@@ -73,7 +73,7 @@
             <artifactId>shared</artifactId>
         </dependency>
 
-        <!-- TODO remove -->
+        <!-- TODO remove backend dependency -->
         <dependency>
             <groupId>com.ximedes.sva</groupId>
             <artifactId>backend</artifactId>
@@ -97,6 +97,11 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
+
         <!-- test frameworks -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -118,10 +123,6 @@
         <dependency>
             <groupId>io.gatling.highcharts</groupId>
             <artifactId>gatling-charts-highcharts</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
         </dependency>
     </dependencies>
 
