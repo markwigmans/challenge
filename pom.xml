@@ -10,7 +10,7 @@
     <parent>
         <groupId>io.spring.platform</groupId>
         <artifactId>platform-bom</artifactId>
-        <version>2.0.6.RELEASE</version>
+        <version>2.0.7.RELEASE</version>
         <relativePath/>
     </parent>
 
@@ -122,6 +122,7 @@
                 <version>2.6.1</version>
             </dependency>
 
+
             <!-- test frameworks -->
             <dependency>
                 <groupId>com.jayway.restassured</groupId>
@@ -185,7 +186,7 @@
                     </configuration>
                 </plugin>
 
-                <!-- google protobuffer code generation -->
+                <!-- google protobuf code generation -->
                 <plugin>
                     <groupId>org.xolstice.maven.plugins</groupId>
                     <artifactId>protobuf-maven-plugin</artifactId>
@@ -268,12 +269,42 @@
         </pluginManagement>
     </build>
 
-
     <modules>
         <module>shared</module>
-        <module>frontend</module>
         <module>backend</module>
+        <module>frontend</module>
         <module>benchmark</module>
   </modules>
+
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>http://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring-release</id>
+            <name>Spring Release</name>
+            <url>http://repo.spring.io/release</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>http://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>spring-release</id>
+            <name>Spring Release</name>
+            <url>http://repo.spring.io/release</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

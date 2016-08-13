@@ -102,7 +102,9 @@ public class LedgerActor extends AbstractLoggingActor {
                     .setStatus(QueryAccountResponse.EnumStatus.CONFIRMED)
                     .build();
         } else {
-            response = QueryAccountResponse.newBuilder().setStatus(QueryAccountResponse.EnumStatus.ACCOUNT_NOT_FOUND).build();
+            response = QueryAccountResponse.newBuilder()
+                    .setAccountId(request.getAccountId())
+                    .setStatus(QueryAccountResponse.EnumStatus.ACCOUNT_NOT_FOUND).build();
         }
         sender().tell(response, self());
     }
