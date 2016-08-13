@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.sva.frontend.actor;
+package com.ximedes.sva.backend.actor;
 
 import akka.actor.ActorSystem;
 import akka.testkit.JavaTestKit;
 import akka.testkit.TestActorRef;
+import static com.ximedes.sva.protocol.BackendProtocol.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,9 +26,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by mawi on 26/07/2016.
+ * Created by mawi on 13/08/2016.
  */
-public class BackendActorTest {
+public class TransferRepositoryActorTest {
 
     static ActorSystem system;
 
@@ -43,10 +44,18 @@ public class BackendActorTest {
     }
 
     @Test
-    public void smokeTest() {
-        final TestActorRef<BackendActor> ref = TestActorRef.create(system, BackendActor.props(), "testA");
-        final BackendActor actor = ref.underlyingActor();
-        assertNotNull(actor);
+    public void testToFromBytes() throws Exception {
+        final TestActorRef<TransferRepositoryActor> ref = TestActorRef.create(system, TransferRepositoryActor.props(5), "testA");
+        final TransferRepositoryActor actor = ref.underlyingActor();
+
+        QueryTransferResponse msg1 = QueryTransferResponse.newBuilder().setTransferId(10)
+        .setStatus(QueryTransferResponse.EnumStatus.TRANSFER_NOT_FOUND).build();
+
+        final byte[] bytes = actor.toBytes(msg1);
+        assertEquals(msg1.getSerializedSize(), bytes.length);
+
+        QueryTransferResponse msg2 = actor.fromBytes(bytes);
+        assertEquals(msg1,msg2);
     }
 
 }

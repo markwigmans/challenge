@@ -43,6 +43,7 @@ message QueryTransferResponse {
         CONFIRMED= 2;
         INSUFFICIENT_FUNDS = 3;
         ACCOUNT_NOT_FOUND = 4;
+        TRANSFER_NOT_FOUND = 5;
     }
     required EnumStatus status = 5;
 }
@@ -68,11 +69,11 @@ message IdRangeRequest {
 
 message IdRangeResponse {
     required IdType type = 1;
-    repeated int32 id = 2;
+    repeated int32 id = 2 [packed=true];
 }
 
 // return given ID's to the pool
 message IdReturnMessage {
     required IdType type = 1;
-    repeated int32 id = 2;
+    repeated int32 id = 2 [packed=true];
 }

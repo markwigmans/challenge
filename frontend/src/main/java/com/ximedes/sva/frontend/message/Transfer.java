@@ -31,6 +31,7 @@ public class Transfer {
     String from;
     String to;
     Integer amount;
+    String status;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class TransferBuilder {

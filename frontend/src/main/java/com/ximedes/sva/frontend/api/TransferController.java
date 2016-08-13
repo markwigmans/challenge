@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -54,10 +55,10 @@ public class TransferController {
     }
 
     @RequestMapping(value = "/transfer/{transferId}", method = RequestMethod.GET)
-    public ResponseEntity<Account> queryTransfer(@PathVariable String transferId) {
+    public ResponseEntity<Transfer> queryTransfer(@PathVariable String transferId) throws ExecutionException, InterruptedException {
         log.debug("queryTransfer({})", transferId);
 
-        final Transfer transfer = transferService.queryTransfer(transferId);
+        final Transfer transfer = transferService.queryTransfer(transferId).get();
 
         if (transfer != null) {
             return new ResponseEntity(transfer, HttpStatus.OK);

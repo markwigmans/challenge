@@ -20,7 +20,6 @@ import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import com.ximedes.sva.frontend.actor.ActorManager;
 import com.ximedes.sva.frontend.message.Account;
-import static com.ximedes.sva.protocol.BackendProtocol.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +30,7 @@ import static com.ximedes.sva.protocol.BackendProtocol.*;
 @Service
 public class AccountService {
 
-    private final ActorRef ledgerActor;
+    private final ActorRef ledger;
     private final ActorRef idActor;
     private final Timeout timeout;
 
@@ -40,7 +39,7 @@ public class AccountService {
      */
     @Autowired
     public AccountService(final ActorManager actorManager, final Timeout timeout) {
-        this.ledgerActor = actorManager.getLedgerActor();
+        this.ledger = actorManager.getLedger();
         this.idActor = actorManager.getLocalIdActor();
         this.timeout = timeout;
     }
@@ -52,7 +51,7 @@ public class AccountService {
 
         return ask.thenApply(r -> {
             final IdResponse response = (IdResponse) r;
-            ledgerActor.tell(CreateAccountMessage.newBuilder().setAccountId(response.getId()).setOverdraft(overDraft).build(), ActorRef.noSender());
+            ledger.tell(CreateAccountMessage.newBuilder().setAccountId(response.getId()).setOverdraft(overDraft).build(), ActorRef.noSender());
             return Account.builder().accountId(Integer.toString(response.getId())).build();
         });
     }
@@ -60,15 +59,20 @@ public class AccountService {
     public CompletableFuture<Account> queryAccount(final String accountId) {
         final int id = Integer.parseInt(accountId);
         final QueryAccountRequest message = QueryAccountRequest.newBuilder().setAccountId(id).build();
-        final CompletableFuture<Object> ask = PatternsCS.ask(ledgerActor, message, timeout).toCompletableFuture();
+        final CompletableFuture<Object> ask = PatternsCS.ask(ledger, message, timeout).toCompletableFuture();
 
         return ask.thenApply(r -> {
             final QueryAccountResponse response = (QueryAccountResponse) r;
-            return Account.builder()
-                    .accountId(Integer.toString(response.getAccountId()))
-                    .balance(response.getBalance())
-                    .overdraft(response.getOverdraft())
-                    .build();
+            switch (response.getStatus()) {
+                case CONFIRMED:
+                    return Account.builder()
+                            .accountId(Integer.toString(response.getAccountId()))
+                            .balance(response.getBalance())
+                            .overdraft(response.getOverdraft())
+                            .build();
+                default:
+                    return null;
+            }
         });
     }
 }

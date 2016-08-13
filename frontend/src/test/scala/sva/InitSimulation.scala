@@ -40,7 +40,7 @@ class InitSimulation extends Simulation {
   val scn = scenario("create").exec(merchantChain,accountChain)
 
   setUp(
-    init.inject(atOnceUsers(1)).protocols(Config.httpConf),
-    scn.inject(atOnceUsers(Config.initUsers)).protocols(Config.httpConf)
+    init.inject(atOnceUsers(1)).protocols(Config.httpConf)
+    ,scn.inject(atOnceUsers(Config.initUsers)).protocols(Config.httpConf)
   )
 }

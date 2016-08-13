@@ -21,6 +21,7 @@ import akka.actor.Props;
 import akka.actor.SupervisorStrategy;
 import akka.japi.pf.DeciderBuilder;
 import akka.japi.pf.ReceiveBuilder;
+import akka.routing.Broadcast;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import scala.concurrent.duration.Duration;
@@ -62,6 +63,7 @@ public class Supervisor extends AbstractActor {
                 .match(NamedProps.class, namedProps -> {
                     sender().tell(context().actorOf(namedProps.props, namedProps.name), self());
                 })
+                .match(Broadcast.class, m -> {})    // ignore
                 .matchAny(this::unhandled)
                 .build()
         );

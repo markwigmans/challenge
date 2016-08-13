@@ -21,7 +21,7 @@ import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.google.protobuf.TextFormat;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.queue.CircularFifoQueue;
+import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import scala.Option;
 
 import java.util.List;
@@ -37,29 +37,27 @@ import static com.ximedes.sva.protocol.SimulationProtocol.Resetted;
 public class LocalIdActor extends AbstractLoggingActor {
 
     private final ActorRef idActor;
-
     private final IdQueue accountIds;
     private final IdQueue transferIds;
 
     /**
      * Create Props for an actor of this type.
      */
-    public static Props props(ActorRef idActor) {
-        return Props.create(LocalIdActor.class, idActor);
+    public static Props props(final ActorRef idActor, final int accountSize, final int transferSize, final int factor) {
+        return Props.create(LocalIdActor.class, idActor, accountSize, transferSize, factor);
     }
 
-    private LocalIdActor(final ActorRef idActor) {
+    private LocalIdActor(final ActorRef idActor, int accountSize, int transferSize, int factor) {
         this.idActor = idActor;
-        // TODO make configurable
-        this.accountIds = new IdQueue(IdType.ACCOUNTS, idActor, self(), 32, 2);
-        this.transferIds = new IdQueue(IdType.TRANSFERS, idActor, self(), 32, 2);
+        this.accountIds = new IdQueue(IdType.ACCOUNTS, idActor, self(), accountSize, factor);
+        this.transferIds = new IdQueue(IdType.TRANSFERS, idActor, self(), transferSize, factor);
 
         receive(ReceiveBuilder
-                .match(IdRangeRequest.class, this::idRangeRequest)
                 .match(IdRequest.class, this::idRequest)
                 .match(IdRangeResponse.class, this::IdRangeResponse)
                 .match(Reset.class, this::reset)
-                .matchAny(o -> log().warning("received unknown message: {}", o)).build());
+                .matchAny(this::unhandled)
+                .build());
     }
 
     @Override
@@ -80,22 +78,18 @@ public class LocalIdActor extends AbstractLoggingActor {
     }
 
     private void idRequest(final IdRequest request) {
-        final int id;
+        boolean successful = false;
         if (IdType.ACCOUNTS == request.getType()) {
-            id = accountIds.requestId(sender());
-        } else if (IdType.TRANSFERS == request.getType()) {
-            id = transferIds.requestId(sender());
-        } else {
-            // impossible values, should not happen
-            id = -2;
+            successful = accountIds.requestId(sender());
         }
-        sender().tell(IdResponse.newBuilder().setType(request.getType()).setId(id).build(), self());
+        if (IdType.TRANSFERS == request.getType()) {
+            successful = transferIds.requestId(sender());
+        }
+        // resend while the ID queue is being filed
+        if (!successful) {
+            self().forward(request, context());
+        }
     }
-
-    private void idRangeRequest(final IdRangeRequest request) {
-
-    }
-
 
     private void IdRangeResponse(final IdRangeResponse response) {
         log().debug("IdRangeResponse: '{}'", TextFormat.shortDebugString(response));
@@ -119,47 +113,56 @@ public class LocalIdActor extends AbstractLoggingActor {
         private final IdType type;
         private final ActorRef actor;
         private final ActorRef self;
-        private CircularFifoQueue<Integer> ids;
+        private CircularFifoBuffer ids;
         private int preferredSize;
         private int requestFactor;
         private boolean blockRequestSend;
+        private boolean queueResized;
 
         public IdQueue(final IdType type, final ActorRef actor, final ActorRef self, final int preferredSize, final int requestFactor) {
             this.type = type;
             this.actor = actor;
             this.self = self;
-            this.ids = new CircularFifoQueue(preferredSize);
+            this.ids = new CircularFifoBuffer(preferredSize);
             this.preferredSize = preferredSize;
             this.requestFactor = requestFactor;
             blockRequestSend = false;
+            queueResized = false;
         }
 
         public void init() {
             log.info("init()");
+            ids.clear();
             requestIds(preferredSize);
         }
 
-        public int requestId(final ActorRef sender) {
+        /**
+         *
+         * @param sender
+         * @return {code true} if successful
+         */
+        public boolean requestId(final ActorRef sender) {
             if (ids.isEmpty()) {
-                log.warn("queue is empty");
-                // TODO empty queue
-                // TODO resize ids;
-                return 0;
+                if (!queueResized) {
+                    // resize queue
+                    preferredSize *= 1.5;
+                    log.warn("queue ({}) is empty, resize to: {}", type, preferredSize);
+                    this.ids = new CircularFifoBuffer(preferredSize);
+                    queueResized = true;
+                } else {
+                    log.debug("queue ({}) still empty", type);
+                }
+                return false;
             } else {
-                final Integer id = ids.remove();
+                final Integer id = (Integer) ids.remove();
                 final IdResponse message = IdResponse.newBuilder().setType(type).setId(id).build();
                 sender.tell(message, self);
                 if (!blockRequestSend && (ids.size() * requestFactor <= preferredSize)) {
                     // we need more ID's
                     requestIds(preferredSize - ids.size());
                 }
-                return id;
             }
-        }
-
-        public List<Integer> requestIds(final ActorRef sender, final int size) {
-            // TODO
-            return null;
+            return true;
         }
 
         void requestIds(final int size) {
@@ -172,7 +175,7 @@ public class LocalIdActor extends AbstractLoggingActor {
             log.debug("{} : addIds({}), old size ids:{}", type, list.size(), ids.size());
             list.forEach(ids::add);
             blockRequestSend = false;
+            queueResized = false;
         }
     }
-
 }

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -53,7 +54,7 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/account/{accountId}", method = RequestMethod.GET)
-    public ResponseEntity<Account> queryAccount(@PathVariable String accountId) throws Exception {
+    public ResponseEntity<Account> queryAccount(@PathVariable String accountId) throws ExecutionException, InterruptedException {
         log.debug("queryAccount({})", accountId);
 
         final Account account = accountService.queryAccount(accountId).get();

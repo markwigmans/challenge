@@ -16,14 +16,17 @@
 package com.ximedes.sva.frontend.api;
 
 import com.ximedes.sva.frontend.message.Account;
+import com.ximedes.sva.frontend.message.Transaction;
+import com.ximedes.sva.frontend.message.Transfer;
+import com.ximedes.sva.frontend.service.TransactionService;
 import com.ximedes.sva.frontend.service.TransferService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -32,18 +35,23 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class TransactionController {
 
-    private final TransferService transferService;
+    private final TransactionService service;
 
     @Autowired
-    public TransactionController(final TransferService transferService) {
-        this.transferService = transferService;
+    public TransactionController(final TransactionService service) {
+        this.service = service;
     }
 
     @RequestMapping(value = "/transaction/{transactionId}", method = RequestMethod.GET)
-    public ResponseEntity<Account> queryTransaction(@RequestParam String transactionId) {
+    public ResponseEntity<Transaction> queryTransaction(@PathVariable String transactionId) throws ExecutionException, InterruptedException {
         log.debug("queryTransaction({})", transactionId);
 
-        // TODO
-        return null;
+        final Transaction transaction = service.queryTransaction(transactionId).get();
+
+        if (transaction != null) {
+            return new ResponseEntity(transaction, HttpStatus.OK);
+        } else {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
     }
 }

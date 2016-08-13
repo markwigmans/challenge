@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,12 +16,12 @@
 package com.ximedes.sva.backend.actor;
 
 import akka.actor.AbstractLoggingActor;
+import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.google.protobuf.TextFormat;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 
 import static com.ximedes.sva.protocol.BackendProtocol.*;
 import static com.ximedes.sva.protocol.SimulationProtocol.Reset;
@@ -31,31 +31,34 @@ import static com.ximedes.sva.protocol.SimulationProtocol.Resetted;
  * Created by mawi on 06/08/2016.
  */
 public class LedgerActor extends AbstractLoggingActor {
-    private static final int ACCOUNTS = 310000;
-    private static final int TRANSFERS = 1000000;
+    // represent an empty / not used account
+    private static final int EMPTY_ACCOUNT = -1;
 
-    private final int[] balance = new int[ACCOUNTS];
-    private final int[] overdraft = new int[ACCOUNTS];
-
-    // TODO mus it be a map?
-    private final Map<Integer, byte[]> transfers = new HashMap(TRANSFERS, 0.9f);
+    private final ActorRef transferActor;
+    private final int[] balance;
+    private final int[] overdraft;
 
     /**
      * Create Props for an actor of this type.
      */
-    public static Props props() {
-        return Props.create(LedgerActor.class, LedgerActor::new);
+    public static Props props(final ActorRef transferActor, final int accountSize) {
+        return Props.create(LedgerActor.class, transferActor, accountSize);
     }
 
-    private LedgerActor() {
+    private LedgerActor(final ActorRef transferActor, final int accountSize) {
+        log().info("constructor({})", accountSize);
+        this.transferActor = transferActor;
+        this.balance = new int[accountSize];
+        this.overdraft = new int[accountSize];
+
         init();
         receive(ReceiveBuilder
                 .match(CreateAccountMessage.class, this::createAccount)
                 .match(CreateTransferMessage.class, this::processTransfer)
                 .match(QueryAccountRequest.class, this::queryAccount)
-                .match(QueryTransferRequest.class, this::queryTransfer)
                 .match(Reset.class, this::reset)
-                .matchAny(o -> log().warning("received unknown message: {}", o)).build());
+                .matchAny(this::unhandled)
+                .build());
     }
 
     // reset the simulation
@@ -66,35 +69,50 @@ public class LedgerActor extends AbstractLoggingActor {
     }
 
     private void init() {
-        for (int i = 0; i < ACCOUNTS; i++) {
-            balance[i] = Integer.MAX_VALUE;
-            overdraft[i] = 0;
+        for (int i = 0; i < balance.length; i++) {
+            balance[i] = 0;
+            overdraft[i] = EMPTY_ACCOUNT;
         }
-        transfers.clear();
     }
 
     void createAccount(final CreateAccountMessage request) {
         log().debug("message received: [{}]", TextFormat.shortDebugString(request));
 
         // process message
-        balance[request.getAccountId()] = 0;
-        overdraft[request.getAccountId()] = request.getOverdraft();
+        if (validAccountId(request.getAccountId())) {
+            balance[request.getAccountId()] = 0;
+            overdraft[request.getAccountId()] = request.getOverdraft();
+        } else {
+            log().error("illegal account ID: '{}'", request.getAccountId());
+        }
     }
 
-    private void queryAccount(QueryAccountRequest request) {
+    boolean validAccountId(final int id) {
+        return id >= 0 && id < balance.length;
+    }
+
+    void queryAccount(final QueryAccountRequest request) {
         log().debug("message received: [{}]", TextFormat.shortDebugString(request));
-        final int id = request.getAccountId();
-        final QueryAccountResponse response = QueryAccountResponse.newBuilder()
-                .setAccountId(id)
-                .setBalance(balance[id])
-                .setOverdraft(overdraft[id])
-                .setStatus(QueryAccountResponse.EnumStatus.CONFIRMED)
-                .build();
+        final QueryAccountResponse response;
+        if (accountFound(request.getAccountId())) {
+            response = QueryAccountResponse.newBuilder()
+                    .setAccountId(request.getAccountId())
+                    .setBalance(balance[request.getAccountId()])
+                    .setOverdraft(overdraft[request.getAccountId()])
+                    .setStatus(QueryAccountResponse.EnumStatus.CONFIRMED)
+                    .build();
+        } else {
+            response = QueryAccountResponse.newBuilder().setStatus(QueryAccountResponse.EnumStatus.ACCOUNT_NOT_FOUND).build();
+        }
         sender().tell(response, self());
     }
 
-    void processTransfer(final CreateTransferMessage request) {
-        log().debug("message received: [{}]", TextFormat.shortDebugString(request));
+    boolean accountFound(final int id) {
+        return validAccountId(id) && overdraft[id] != EMPTY_ACCOUNT;
+    }
+
+    void processTransfer(final CreateTransferMessage request) throws IOException {
+        log().debug("message received: [{}]", request.toString());
 
         // process message
         final boolean transferred = transfer(request.getFrom(), request.getTo(), request.getAmount());
@@ -104,17 +122,17 @@ public class LedgerActor extends AbstractLoggingActor {
     boolean transfer(int from, int to, int amount) {
         // check balance
         if (balance[from] + overdraft[from] - amount >= 0) {
-            log().info("sufficient funds: [{},{},{}]", from, to, amount);
+            //log().debug("sufficient funds: [{},{},{}]", from, to, amount);
             balance[from] -= amount;
             balance[to] += amount;
             return true;
         } else {
-            log().warning("insufficient funds: [{},{},{}]", from, to, amount);
+            //log().debug("insufficient funds: [{},{},{}]", from, to, amount);
             return false;
         }
     }
 
-    private void storeTransfer(CreateTransferMessage request, boolean transferred) {
+    private void storeTransfer(CreateTransferMessage request, boolean transferred) throws IOException {
         QueryTransferResponse.EnumStatus status = transferred
                 ? QueryTransferResponse.EnumStatus.CONFIRMED
                 : QueryTransferResponse.EnumStatus.INSUFFICIENT_FUNDS;
@@ -125,13 +143,7 @@ public class LedgerActor extends AbstractLoggingActor {
                 .setAmount(request.getAmount())
                 .setStatus(status)
                 .build();
-
-        transfers.put(request.getTransferId(), message.toByteArray());
-    }
-
-    private void queryTransfer(QueryTransferRequest request) {
-        log().debug("message received: [{}]", TextFormat.shortDebugString(request));
-        // TODO make it work
+        transferActor.tell(message, self());
     }
 }
 

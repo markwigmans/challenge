@@ -22,14 +22,9 @@
             <PatternLayout pattern="%d %-5p [%t] %c{1.} - %m%n"/>
             <ThresholdFilter level="info"/>
         </Console>
-        <File name="file" fileName="frontend2.log">
-            <PatternLayout pattern="%d %-5.5p [%t] %-40.40c{1.} - %m%n"/>
-        </File>
 
-        <RollingFile name="RollingFile" fileName="front.log" filePattern="logs/app-%d{MM-dd-yyyy}-%i.log.gz">
-            <PatternLayout>
-                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
-            </PatternLayout>
+        <RollingFile name="RollingFile" fileName="logs/frontend.log" filePattern="logs/frontend-%d{MM-dd-yyyy}-%i.log">
+            <PatternLayout pattern="%d %-5p [%t] [%X{akkaSource}] %c{1.} - %m%n" />
             <Policies>
                 <TimeBasedTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="200 MB"/>
@@ -38,7 +33,6 @@
         </RollingFile>
 
         <Async name="async">
-            <!-- AppenderRef ref="file"/ -->
             <AppenderRef ref="RollingFile"/>"
             <AppenderRef ref="console"/>
         </Async>

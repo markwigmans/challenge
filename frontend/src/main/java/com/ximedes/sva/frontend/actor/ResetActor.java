@@ -19,12 +19,11 @@ import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorSelection;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
+import akka.routing.Broadcast;
+import com.ximedes.sva.protocol.SimulationProtocol;
 import scala.concurrent.duration.Duration;
 
 import java.util.concurrent.TimeUnit;
-
-import static com.ximedes.sva.protocol.SimulationProtocol.Reset;
-import static com.ximedes.sva.protocol.SimulationProtocol.Resetted;
 
 /**
  * Created by mawi on 08/08/2016.
@@ -39,18 +38,23 @@ public class ResetActor extends AbstractLoggingActor {
 
     private ResetActor() {
         receive(ReceiveBuilder
-                .match(Reset.class, this::reset)
-                .matchAny(m -> unhandled(m)).build());
+                .match(SimulationProtocol.Reset.class, this::reset)
+                .match(Broadcast.class, m -> {})    // ignore
+                .matchAny(this::unhandled)
+                .build());
     }
 
-    private void reset(final Reset message) {
+    private void reset(final SimulationProtocol.Reset message) {
         // check if reset was send by my self
         if (!sender().equals(self())) {
             final ActorSelection selection = context().actorSelection("../*");
+            // send message to normal actors and routers as well (which will route this message to all their routees
+            selection.tell(new Broadcast(message), self());
             selection.tell(message, self());
+
             getContext().system().scheduler().scheduleOnce(
-                    Duration.create(500, TimeUnit.MILLISECONDS),
-                    sender(), Resetted.getDefaultInstance(), getContext().dispatcher(), self());
+                    Duration.create(5000, TimeUnit.MILLISECONDS),
+                    sender(), SimulationProtocol.Resetted.getDefaultInstance(), getContext().dispatcher(), self());
         }
     }
 }

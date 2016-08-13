@@ -45,6 +45,6 @@ public class SimulationService {
 
     public void reset() throws Exception {
         log.info("Reset simulation");
-        PatternsCS.ask(resetActor, Reset.getDefaultInstance(), Timeout.apply(1, TimeUnit.SECONDS)).toCompletableFuture().get();
+        PatternsCS.ask(resetActor, Reset.getDefaultInstance(), Timeout.apply(10, TimeUnit.SECONDS)).toCompletableFuture().get();
     }
 }

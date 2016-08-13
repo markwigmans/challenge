@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.sva.backend.actor;
+package com.ximedes.sva.frontend.message;
 
-import akka.actor.AbstractLoggingActor;
-import akka.actor.Props;
-import akka.japi.pf.ReceiveBuilder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Builder;
+import lombok.Value;
 
 /**
- * Created by mawi on 22/07/2016.
+ * Created by mawi on 19/07/2016.
  */
-public class BackendManager extends AbstractLoggingActor {
+@JsonDeserialize(builder = Transaction.TransactionBuilder.class)
+@Builder
+@Value
+public class Transaction {
+    String transactionId;
+    String from;
+    String to;
+    Integer amount;
 
-    /**
-     * Create Props for an actor of this type.
-     */
-    public static Props props() {
-        return Props.create(BackendManager.class, BackendManager::new);
-    }
-
-    private BackendManager() {
-        receive(ReceiveBuilder
-                .matchAny(o -> log().warning("received unknown message: {}", o)).build());
+    @JsonPOJOBuilder(withPrefix = "")
+    public static final class TransactionBuilder {
     }
 }

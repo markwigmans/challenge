@@ -24,7 +24,7 @@ import io.gatling.http.Predef._
 class LoadSimulation extends Simulation {
 
   val scn = scenario("transfers").repeat((Config.transfers / Config.loadUsers).get) {
-    randomSwitch(50.0 -> ToMerchant.process, 50.0 -> FromMerchant.process)
+    randomSwitch(30.0 -> ToMerchant.process, 70.0 -> FromMerchant.process)
   }
 
   setUp(
@@ -37,7 +37,7 @@ object ToMerchant {
     exec(session => {
       val from = Utils.randInt(Config.merchants + 1, Config.merchants + Config.accounts + 1)
       val to = Utils.randInt(1, Config.merchants + 1)
-      val amount = Utils.randInt(1, 10000)
+      val amount = Utils.randInt(1, 1000)
       session
         .set("from", from)
         .set("to", to)
@@ -51,7 +51,7 @@ object FromMerchant {
     exec(session => {
       val from = Utils.randInt(1, Config.merchants + 1)
       val to = Utils.randInt(Config.merchants + 1, Config.merchants + Config.accounts + 1)
-      val amount = Utils.randInt(1, 10000)
+      val amount = Utils.randInt(1, 1000)
       session
         .set("from", from)
         .set("to", to)

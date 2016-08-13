@@ -37,15 +37,22 @@ public class FrontendConfig {
     @Value("${frontend.actor.ask.timeout.ms:5000}")
     private int timeout;
 
-    @Value("${frontend.actor.idActor.pool:5}")
+    @Value("${frontend.actor.idActor.pool:8}")
     private int localIdActorPool;
 
     // TODO use for ledger as well
-    @Value("${frontend.account.pool:350000}")
+    @Value("${frontend.account.pool:360000}")
     private int accountPoolSize;
 
-    @Value("${frontend.transfer.pool:1000000}")
+    @Value("${frontend.transfer.pool:1200000}")
     private int transferPoolSize;
+
+    @Value("${frontend.account.id.pool:32}")
+    private int accountSize;
+    @Value("${frontend.transfer.id.pool:32}")
+    private int transferSize;
+    @Value("${frontend.id.pool.factor:2}")
+    private int factor;
 
     @Bean
     ActorSystem actorSystem() {
@@ -68,5 +75,17 @@ public class FrontendConfig {
 
     public int getTransferPoolSize() {
         return transferPoolSize;
+    }
+
+    public int getAccountSize() {
+        return accountSize;
+    }
+
+    public int getTransferSize() {
+        return transferSize;
+    }
+
+    public int getFactor() {
+        return factor;
     }
 }
