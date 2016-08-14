@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * Created by mawi on 22/07/2016.
  */
 @Configuration
-public class BackendConfig {
+class BackendConfig {
 
     /**
      * Default timeout for processing calls.

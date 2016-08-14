@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,19 +18,22 @@ package com.ximedes.sva.backend.actor;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
-import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.TextFormat;
 
-import static com.ximedes.sva.protocol.BackendProtocol.*;
-import static com.ximedes.sva.protocol.SimulationProtocol.*;
+import java.io.IOException;
+
+import static com.ximedes.sva.protocol.BackendProtocol.QueryTransferRequest;
+import static com.ximedes.sva.protocol.BackendProtocol.QueryTransferResponse;
+import static com.ximedes.sva.protocol.SimulationProtocol.Reset;
+import static com.ximedes.sva.protocol.SimulationProtocol.Resetted;
 
 /**
  * Created by mawi on 12/08/2016.
  */
 public class TransferRepositoryActor extends AbstractLoggingActor {
-    private static final int MESSAGE_SIZE = 20;
 
-    private final byte[][] transfers;
+    private final ByteString[] transfers;
 
     /**
      * Create Props for an actor of this type.
@@ -39,9 +42,9 @@ public class TransferRepositoryActor extends AbstractLoggingActor {
         return Props.create(TransferRepositoryActor.class, transferSize);
     }
 
-    private TransferRepositoryActor(final int transferSize) {
+    private TransferRepositoryActor(final int transferSize) throws IOException {
         log().info("constructor({})", transferSize);
-        transfers = new byte[transferSize][MESSAGE_SIZE];
+        transfers = new ByteString[transferSize];
         init();
 
         receive(ReceiveBuilder
@@ -52,39 +55,39 @@ public class TransferRepositoryActor extends AbstractLoggingActor {
                 .build());
     }
 
-    private void init() {
+    private void init() throws IOException {
         for (int i = 0; i < transfers.length; i++) {
             QueryTransferResponse message = QueryTransferResponse.newBuilder()
                     .setTransferId(i)
                     .setStatus(QueryTransferResponse.EnumStatus.TRANSFER_NOT_FOUND)
                     .build();
-            System.arraycopy( toBytes(message), 0, transfers[i], 0, message.getSerializedSize());
+            transfers[i] = transform(message);
         }
     }
 
-    void reset(final Reset message) {
+    void reset(final Reset message) throws IOException {
         log().info("reset()");
         init();
         sender().tell(Resetted.getDefaultInstance(), self());
     }
 
-    void queryTransfer(final QueryTransferRequest request) throws InvalidProtocolBufferException {
+    void queryTransfer(final QueryTransferRequest request) throws IOException {
         log().debug("message received: [{}]", TextFormat.shortDebugString(request));
 
-        final QueryTransferResponse response = fromBytes(transfers[request.getTransferId()]);
+        final QueryTransferResponse response = transform(transfers[request.getTransferId()]);
         sender().tell(response, self());
     }
 
-    void storeTransfer(final QueryTransferResponse message) {
+    void storeTransfer(final QueryTransferResponse message) throws IOException {
         log().debug("message received: [{}]", TextFormat.shortDebugString(message));
-        System.arraycopy( toBytes(message), 0, transfers[message.getTransferId()], 0, message.getSerializedSize());
+        transfers[message.getTransferId()] = transform(message);
     }
 
-    byte[] toBytes (QueryTransferResponse msg) {
-        return msg.toByteArray();
+    ByteString transform(final QueryTransferResponse msg) {
+        return msg.toByteString();
     }
 
-    QueryTransferResponse fromBytes(final byte[] bytes) throws InvalidProtocolBufferException {
+    QueryTransferResponse transform(final ByteString bytes) throws IOException {
         return QueryTransferResponse.parseFrom(bytes);
     }
 }

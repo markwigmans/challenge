@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,14 +22,14 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by mawi on 26/07/2016.
  */
 public class BackendActorTest {
 
-    static ActorSystem system;
+    private static ActorSystem system;
 
     @BeforeClass
     public static void setup() {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +33,7 @@ import static akka.actor.SupervisorStrategy.*;
 /**
  *
  */
-public class Supervisor extends AbstractActor {
+class Supervisor extends AbstractActor {
 
     /**
      * Create Props for an actor of this type.
@@ -56,12 +56,8 @@ public class Supervisor extends AbstractActor {
 
     private Supervisor() {
         receive(ReceiveBuilder
-                .match(Props.class, props -> {
-                    sender().tell(context().actorOf(props), self());
-                })
-                .match(NamedProps.class, namedProps -> {
-                    sender().tell(context().actorOf(namedProps.props, namedProps.name), self());
-                })
+                .match(Props.class, props -> sender().tell(context().actorOf(props), self()))
+                .match(NamedProps.class, namedProps -> sender().tell(context().actorOf(namedProps.props, namedProps.name), self()))
                 .matchAny(this::unhandled)
                 .build()
         );

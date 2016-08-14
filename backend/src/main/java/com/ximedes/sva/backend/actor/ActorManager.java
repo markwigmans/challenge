@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,6 @@ import akka.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import scala.concurrent.Await;
-import scala.concurrent.ExecutionContext;
 
 import static akka.pattern.Patterns.ask;
 
@@ -29,10 +28,8 @@ import static akka.pattern.Patterns.ask;
  * Created by mawi on 13/11/2015.
  */
 @Component("backendActorManager")
-public class ActorManager {
+class ActorManager {
 
-    private final ExecutionContext ec;
-    private final ActorRef supervisor;
     private final ActorRef backendManager;
 
     /**
@@ -41,17 +38,8 @@ public class ActorManager {
     @Autowired
     ActorManager(final ActorSystem system, final Timeout timeout) throws Exception {
         super();
-        this.ec = system.dispatcher();
-        this.supervisor = system.actorOf(Supervisor.props());
+        final ActorRef supervisor = system.actorOf(Supervisor.props());
         this.backendManager = (ActorRef) Await.result(ask(supervisor, new Supervisor.NamedProps(BackendManager.props(), "backendManager"),
                 timeout.duration().toMillis()), timeout.duration());
-    }
-
-    public ExecutionContext getEc() {
-        return ec;
-    }
-
-    public ActorRef getBackendManager() {
-        return backendManager;
     }
 }

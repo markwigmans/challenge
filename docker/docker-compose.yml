@@ -1,0 +1,12 @@
+frontend:
+  image: sva/frontend
+  links:
+    - backend
+  ports:
+    - "2551:2551"
+    - "8080:8080"
+
+backend:
+  image: sva/backend
+  ports:
+    - "2550:2550"

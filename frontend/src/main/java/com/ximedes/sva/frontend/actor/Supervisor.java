@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,7 @@ import static akka.actor.SupervisorStrategy.*;
 /**
  *
  */
-public class Supervisor extends AbstractActor {
+class Supervisor extends AbstractActor {
 
     /**
      * Create Props for an actor of this type.
@@ -57,12 +57,8 @@ public class Supervisor extends AbstractActor {
 
     private Supervisor() {
         receive(ReceiveBuilder
-                .match(Props.class, props -> {
-                    sender().tell(context().actorOf(props), self());
-                })
-                .match(NamedProps.class, namedProps -> {
-                    sender().tell(context().actorOf(namedProps.props, namedProps.name), self());
-                })
+                .match(Props.class, props -> sender().tell(context().actorOf(props), self()))
+                .match(NamedProps.class, namedProps -> sender().tell(context().actorOf(namedProps.props, namedProps.name), self()))
                 .match(Broadcast.class, m -> {
                 })    // ignore
                 .matchAny(this::unhandled)

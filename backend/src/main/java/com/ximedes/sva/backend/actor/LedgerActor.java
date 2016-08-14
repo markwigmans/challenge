@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -134,7 +134,7 @@ public class LedgerActor extends AbstractLoggingActor {
         }
     }
 
-    private void storeTransfer(CreateTransferMessage request, boolean transferred) throws IOException {
+    private void storeTransfer(CreateTransferMessage request, boolean transferred) {
         QueryTransferResponse.EnumStatus status = transferred
                 ? QueryTransferResponse.EnumStatus.CONFIRMED
                 : QueryTransferResponse.EnumStatus.INSUFFICIENT_FUNDS;

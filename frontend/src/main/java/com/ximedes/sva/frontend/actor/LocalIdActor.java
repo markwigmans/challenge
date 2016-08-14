@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,9 +34,8 @@ import static com.ximedes.sva.protocol.SimulationProtocol.Resetted;
 /**
  * Created by mawi on 05/08/2016.
  */
-public class LocalIdActor extends AbstractLoggingActor {
+class LocalIdActor extends AbstractLoggingActor {
 
-    private final ActorRef idActor;
     private final IdQueue accountIds;
     private final IdQueue transferIds;
 
@@ -48,7 +47,6 @@ public class LocalIdActor extends AbstractLoggingActor {
     }
 
     private LocalIdActor(final ActorRef idActor, int accountSize, int transferSize, int factor) {
-        this.idActor = idActor;
         this.accountIds = new IdQueue(IdType.ACCOUNTS, idActor, self(), accountSize, factor);
         this.transferIds = new IdQueue(IdType.TRANSFERS, idActor, self(), transferSize, factor);
 
@@ -115,7 +113,7 @@ public class LocalIdActor extends AbstractLoggingActor {
         private final ActorRef self;
         private CircularFifoBuffer ids;
         private int preferredSize;
-        private int requestFactor;
+        private final int requestFactor;
         private boolean blockRequestSend;
         private boolean queueResized;
 
@@ -137,7 +135,6 @@ public class LocalIdActor extends AbstractLoggingActor {
         }
 
         /**
-         *
          * @param sender
          * @return {code true} if successful
          */

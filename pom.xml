@@ -164,6 +164,27 @@
             </extension>
         </extensions>
 
+        <plugins>
+            <!-- get a reference to the root pom directory -->
+            <plugin>
+                <groupId>org.commonjava.maven.plugins</groupId>
+                <artifactId>directory-maven-plugin</artifactId>
+                <version>0.1</version>
+                <executions>
+                    <execution>
+                        <id>directories</id>
+                        <goals>
+                            <goal>highest-basedir</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <property>main.basedir</property>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -229,6 +250,10 @@
                             <email>mark.wigmans@gmail.com</email>
                             <project.inceptionYear>2016</project.inceptionYear>
                         </properties>
+                        <headerDefinitions>
+                            <!--  Intellij formatter doesn't like the default, so change it -->
+                            <headerDefinition>${main.basedir}/javadoc.xml</headerDefinition>
+                        </headerDefinitions>
                     </configuration>
                     <executions>
                         <execution>

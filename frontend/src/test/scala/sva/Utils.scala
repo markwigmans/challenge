@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,7 @@ object Utils {
   // set the seed so the result is reproducible
   private val RNG = new Random(1234)
 
-  def randInt(a:Int) = RNG.nextInt(a)
-  def randInt(a:Int, b:Int) = RNG.nextInt(b-a) + a
+  def randInt(a: Int) = RNG.nextInt(a)
+
+  def randInt(a: Int, b: Int) = RNG.nextInt(b - a) + a
 }

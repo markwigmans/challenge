@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,8 @@ import akka.actor.ActorSystem;
 import akka.testkit.JavaTestKit;
 import akka.testkit.TestActorRef;
 import static com.ximedes.sva.protocol.BackendProtocol.*;
+
+import com.google.protobuf.ByteString;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,7 +32,7 @@ import static org.junit.Assert.*;
  */
 public class TransferRepositoryActorTest {
 
-    static ActorSystem system;
+    private static ActorSystem system;
 
     @BeforeClass
     public static void setup() {
@@ -48,14 +50,14 @@ public class TransferRepositoryActorTest {
         final TestActorRef<TransferRepositoryActor> ref = TestActorRef.create(system, TransferRepositoryActor.props(5), "testA");
         final TransferRepositoryActor actor = ref.underlyingActor();
 
-        QueryTransferResponse msg1 = QueryTransferResponse.newBuilder().setTransferId(10)
-        .setStatus(QueryTransferResponse.EnumStatus.TRANSFER_NOT_FOUND).build();
+        QueryTransferResponse msg1 = QueryTransferResponse.newBuilder()
+                .setTransferId(10)
+                .setStatus(QueryTransferResponse.EnumStatus.PENDING).build();
 
-        final byte[] bytes = actor.toBytes(msg1);
-        assertEquals(msg1.getSerializedSize(), bytes.length);
+        final ByteString bytes = actor.transform(msg1);
 
-        QueryTransferResponse msg2 = actor.fromBytes(bytes);
-        assertEquals(msg1,msg2);
+        QueryTransferResponse msg2 = actor.transform(bytes);
+        assertEquals(msg1, msg2);
     }
 
 }

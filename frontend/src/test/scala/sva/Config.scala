@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,12 +32,13 @@ object Config {
 
   // Number of runs per user during initialisation
   val initUsers = 100
+
   /*
-  val accounts = 29700
-  val merchants = 300
-  val initUsers = 10
+  val accounts = 2970
+  val merchants = 30
+  val initUsers = 2
   */
 
   val transfers = 1000000
-  val loadUsers = 100
+  val loadUsers = 500
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,8 +19,10 @@ import akka.actor.AbstractLoggingActor;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.google.protobuf.TextFormat;
-import static com.ximedes.sva.protocol.SimulationProtocol.*;
+
 import static com.ximedes.sva.protocol.BackendProtocol.*;
+import static com.ximedes.sva.protocol.SimulationProtocol.Reset;
+import static com.ximedes.sva.protocol.SimulationProtocol.Resetted;
 
 /**
  * handles the requests for ID ranges
@@ -89,7 +91,7 @@ public class IdActor extends AbstractLoggingActor {
     }
 
     IdRangeResponse createResponse(final IdType type, final int start, final int count, final int max) {
-        log().debug("createResponse({},{},{},{})'", type,start,count,max);
+        log().debug("createResponse({},{},{},{})'", type, start, count, max);
         final IdRangeResponse.Builder builder = IdRangeResponse.newBuilder().setType(type);
         for (int i = 0; (i < count) && (start + i < max); i++) {
             builder.addId(start + i);

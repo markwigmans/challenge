@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 Mark Wigmans (mark.wigmans@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,7 @@ class InitSimulation extends Simulation {
     }
 
   val init = scenario("init").exec(initChain)
-  val scn = scenario("create").exec(merchantChain,accountChain)
+  val scn = scenario("create").exec(merchantChain, accountChain)
 
   setUp(
     init.inject(atOnceUsers(1)).protocols(Config.httpConf)
