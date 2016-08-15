@@ -16,6 +16,8 @@
 package com.ximedes.sva.frontend;
 
 import com.ximedes.sva.shared.BuildInfo;
+import kamon.Kamon;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
@@ -26,11 +28,14 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @EnableAutoConfiguration
 @ComponentScan(basePackageClasses = {FrontendConfig.class, BuildInfo.class})
+@Slf4j
 public class FrontendApplication {
     /**
      * Start the whole application
      */
     public static void main(final String[] args) {
+        Kamon.start();
+
         SpringApplication.run(FrontendApplication.class, args);
     }
 }

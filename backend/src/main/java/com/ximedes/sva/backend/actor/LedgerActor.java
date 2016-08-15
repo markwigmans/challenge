@@ -75,15 +75,15 @@ public class LedgerActor extends AbstractLoggingActor {
         }
     }
 
-    void createAccount(final CreateAccountMessage request) {
-        log().debug("message received: [{}]", TextFormat.shortDebugString(request));
+    void createAccount(final CreateAccountMessage message) {
+        log().debug("message received: [{}]", TextFormat.shortDebugString(message));
 
         // process message
-        if (validAccountId(request.getAccountId())) {
-            balance[request.getAccountId()] = 0;
-            overdraft[request.getAccountId()] = request.getOverdraft();
+        if (validAccountId(message.getAccountId())) {
+            balance[message.getAccountId()] = 0;
+            overdraft[message.getAccountId()] = message.getOverdraft();
         } else {
-            log().error("illegal account ID: '{}'", request.getAccountId());
+            log().error("illegal account ID: '{}'", message.getAccountId());
         }
     }
 
@@ -110,34 +110,36 @@ public class LedgerActor extends AbstractLoggingActor {
     }
 
     boolean accountFound(final int id) {
-        return validAccountId(id) && overdraft[id] != EMPTY_ACCOUNT;
+        return validAccountId(id) && (overdraft[id] != EMPTY_ACCOUNT);
     }
 
     void processTransfer(final CreateTransferMessage request) throws IOException {
         log().debug("message received: [{}]", request.toString());
 
         // process message
-        final boolean transferred = transfer(request.getFrom(), request.getTo(), request.getAmount());
-        storeTransfer(request, transferred);
+        final QueryTransferResponse.EnumStatus status = transfer(request.getFrom(), request.getTo(), request.getAmount());
+        storeTransfer(request, status);
     }
 
-    boolean transfer(int from, int to, int amount) {
-        // check balance
-        if (balance[from] + overdraft[from] - amount >= 0) {
-            //log().debug("sufficient funds: [{},{},{}]", from, to, amount);
-            balance[from] -= amount;
-            balance[to] += amount;
-            return true;
-        } else {
-            //log().debug("insufficient funds: [{},{},{}]", from, to, amount);
-            return false;
+    QueryTransferResponse.EnumStatus transfer(final int from, final int to, final int amount) {
+        if (accountFound(from) && accountFound(to)) {
+            // check balance
+            if (balance[from] + overdraft[from] - amount >= 0) {
+                //log().debug("sufficient funds: [{},{},{}]", from, to, amount);
+                balance[from]   -= amount;
+                balance[to]     += amount;
+                return QueryTransferResponse.EnumStatus.CONFIRMED;
+            } else {
+                //log().debug("insufficient funds: [{},{},{}]", from, to, amount);
+                return QueryTransferResponse.EnumStatus.INSUFFICIENT_FUNDS;
+            }
+        }
+        else {
+            return QueryTransferResponse.EnumStatus.ACCOUNT_NOT_FOUND;
         }
     }
 
-    private void storeTransfer(CreateTransferMessage request, boolean transferred) {
-        QueryTransferResponse.EnumStatus status = transferred
-                ? QueryTransferResponse.EnumStatus.CONFIRMED
-                : QueryTransferResponse.EnumStatus.INSUFFICIENT_FUNDS;
+    private void storeTransfer(CreateTransferMessage request, final QueryTransferResponse.EnumStatus status) {
         QueryTransferResponse message = QueryTransferResponse.newBuilder()
                 .setTransferId(request.getTransferId())
                 .setFrom(request.getFrom())

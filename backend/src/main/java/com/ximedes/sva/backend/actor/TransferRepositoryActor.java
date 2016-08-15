@@ -56,11 +56,9 @@ public class TransferRepositoryActor extends AbstractLoggingActor {
     }
 
     private void init() throws IOException {
+        QueryTransferResponse template = QueryTransferResponse.newBuilder().setStatus(QueryTransferResponse.EnumStatus.TRANSFER_NOT_FOUND).buildPartial();
         for (int i = 0; i < transfers.length; i++) {
-            QueryTransferResponse message = QueryTransferResponse.newBuilder()
-                    .setTransferId(i)
-                    .setStatus(QueryTransferResponse.EnumStatus.TRANSFER_NOT_FOUND)
-                    .build();
+            QueryTransferResponse message = QueryTransferResponse.newBuilder(template).setTransferId(i).build();
             transfers[i] = transform(message);
         }
     }

@@ -34,6 +34,8 @@
     <properties>
         <java.version>1.8</java.version>
         <akka.version>2.4.8</akka.version>
+        <kamon.version>0.6.2</kamon.version>
+
         <docker.image.prefix>sva</docker.image.prefix>
     </properties>
 
@@ -102,6 +104,38 @@
                 <artifactId>akka-multi-node-testkit_2.11</artifactId>
                 <version>${akka.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- akka monitoring-->
+            <dependency>
+                <groupId>io.kamon</groupId>
+                <artifactId>kamon-akka-remote_akka-2.4_2.11</artifactId>
+                <version>${kamon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.kamon</groupId>
+                <artifactId>kamon-system-metrics_2.11</artifactId>
+                <version>${kamon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.kamon</groupId>
+                <artifactId>kamon-log-reporter_2.11</artifactId>
+                <version>${kamon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.kamon</groupId>
+                <artifactId>kamon-statsd_2.11</artifactId>
+                <version>${kamon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.kamon</groupId>
+                <artifactId>kamon-annotation_2.11</artifactId>
+                <version>${kamon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.kamon</groupId>
+                <artifactId>kamon-autoweave_2.11</artifactId>
+                <version>${kamon.version}</version>
             </dependency>
 
             <dependency>

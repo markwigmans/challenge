@@ -53,10 +53,10 @@ class CheckSimulation extends Simulation {
     }
 
   val accountScn = scenario("accounts").exec(queryAccountsChain)
-  val transferScn = scenario("transfers").exec(queryTransfersChain,queryTransactionsChain)
+  val transferScn = scenario("transfers").exec(queryTransfersChain, queryTransactionsChain)
 
   setUp(
-    //accountScn.inject(atOnceUsers(Config.initUsers)).protocols(Config.httpConf)
-    transferScn.inject(atOnceUsers(Config.loadUsers)).protocols(Config.httpConf)
+    accountScn.inject(atOnceUsers(Config.initUsers)).protocols(Config.httpConf)
+    , transferScn.inject(atOnceUsers(Config.loadUsers)).protocols(Config.httpConf)
   )
 }

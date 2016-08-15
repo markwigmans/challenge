@@ -24,6 +24,7 @@ import com.ximedes.sva.backend.actor.IdActor;
 import com.ximedes.sva.backend.actor.LedgerActor;
 import com.ximedes.sva.backend.actor.TransferRepositoryActor;
 import com.ximedes.sva.frontend.FrontendConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Component;
  * Created by mawi on 13/11/2015.
  */
 @Component("frontendActorManager")
+@Slf4j
 public class ActorManager {
 
     private final ActorRef transferRepository;

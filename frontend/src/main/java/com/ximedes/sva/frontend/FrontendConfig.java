@@ -19,6 +19,7 @@ import akka.actor.ActorSystem;
 import akka.util.Timeout;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,7 @@ import java.util.concurrent.TimeUnit;
  * Created by mawi on 22/07/2016.
  */
 @Configuration
+@Slf4j
 public class FrontendConfig {
 
     /**
@@ -40,7 +42,6 @@ public class FrontendConfig {
     @Value("${frontend.actor.idActor.pool:8}")
     private int localIdActorPool;
 
-    // TODO use for ledger as well
     @Value("${frontend.account.pool:360000}")
     private int accountPoolSize;
 

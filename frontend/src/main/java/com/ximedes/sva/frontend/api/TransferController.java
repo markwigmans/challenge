@@ -17,6 +17,8 @@ package com.ximedes.sva.frontend.api;
 
 import com.ximedes.sva.frontend.message.Transfer;
 import com.ximedes.sva.frontend.service.TransferService;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Trace;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -28,11 +30,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
 
-/**
- *
- */
 @RestController
 @Slf4j
+@EnableKamon
 class TransferController {
 
     private final TransferService transferService;
@@ -42,6 +42,7 @@ class TransferController {
         this.transferService = transferService;
     }
 
+    @Trace("createTransfer")
     @RequestMapping(value = "/transfer", method = RequestMethod.POST)
     public ResponseEntity createTransfer(@RequestBody Transfer request) throws Exception {
         log.debug("createTransfer({})", request);
@@ -53,6 +54,7 @@ class TransferController {
         return new ResponseEntity(responseHeaders, HttpStatus.ACCEPTED);
     }
 
+    @Trace("queryTransfer")
     @RequestMapping(value = "/transfer/{transferId}", method = RequestMethod.GET)
     public ResponseEntity<Transfer> queryTransfer(@PathVariable String transferId) throws ExecutionException, InterruptedException {
         log.debug("queryTransfer({})", transferId);

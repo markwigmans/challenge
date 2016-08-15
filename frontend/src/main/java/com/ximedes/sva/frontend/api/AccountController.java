@@ -32,6 +32,8 @@ package com.ximedes.sva.frontend.api;
 
 import com.ximedes.sva.frontend.message.Account;
 import com.ximedes.sva.frontend.service.AccountService;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Trace;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -43,11 +45,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
 
-/**
- *
- */
 @RestController
 @Slf4j
+@EnableKamon
 class AccountController {
 
     private final AccountService accountService;
@@ -57,6 +57,7 @@ class AccountController {
         this.accountService = accountService;
     }
 
+    @Trace("createAccount")
     @RequestMapping(value = "/account", method = RequestMethod.POST)
     public ResponseEntity createAccount(@RequestBody Account request) throws Exception {
         log.debug("createAccount({})", request);
@@ -68,6 +69,7 @@ class AccountController {
         return new ResponseEntity(responseHeaders, HttpStatus.ACCEPTED);
     }
 
+    @Trace("queryAccount")
     @RequestMapping(value = "/account/{accountId}", method = RequestMethod.GET)
     public ResponseEntity<Account> queryAccount(@PathVariable String accountId) throws ExecutionException, InterruptedException {
         log.debug("queryAccount({})", accountId);

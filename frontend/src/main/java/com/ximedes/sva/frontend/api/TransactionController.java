@@ -17,6 +17,8 @@ package com.ximedes.sva.frontend.api;
 
 import com.ximedes.sva.frontend.message.Transaction;
 import com.ximedes.sva.frontend.service.TransactionService;
+import kamon.annotation.EnableKamon;
+import kamon.annotation.Trace;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,11 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.ExecutionException;
 
-/**
- *
- */
 @RestController
 @Slf4j
+@EnableKamon
 class TransactionController {
 
     private final TransactionService service;
@@ -42,6 +42,7 @@ class TransactionController {
         this.service = service;
     }
 
+    @Trace("queryTransaction")
     @RequestMapping(value = "/transaction/{transactionId}", method = RequestMethod.GET)
     public ResponseEntity<Transaction> queryTransaction(@PathVariable String transactionId) throws ExecutionException, InterruptedException {
         log.debug("queryTransaction({})", transactionId);

@@ -20,6 +20,10 @@ import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.google.protobuf.TextFormat;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import static com.ximedes.sva.protocol.BackendProtocol.*;
 import static com.ximedes.sva.protocol.SimulationProtocol.Reset;
 import static com.ximedes.sva.protocol.SimulationProtocol.Resetted;
@@ -93,9 +97,8 @@ public class IdActor extends AbstractLoggingActor {
     IdRangeResponse createResponse(final IdType type, final int start, final int count, final int max) {
         log().debug("createResponse({},{},{},{})'", type, start, count, max);
         final IdRangeResponse.Builder builder = IdRangeResponse.newBuilder().setType(type);
-        for (int i = 0; (i < count) && (start + i < max); i++) {
-            builder.addId(start + i);
-        }
+
+        builder.addAllId(IntStream.range(start, start + count).filter(i -> i < max).boxed().collect(Collectors.toList()));
         return builder.build();
     }
 
