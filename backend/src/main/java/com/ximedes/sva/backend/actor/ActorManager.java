@@ -40,11 +40,14 @@ class ActorManager {
 
         final ActorRef supervisor = system.actorOf(Supervisor.props(), "supervisor");
 
-        final ActorRef idActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(IdActor.props(accountPoolSize, transferPoolSize), "idActor"), timeout).toCompletableFuture().get();
-        final ActorRef transferRepository = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(TransferRepositoryActor.props(transferPoolSize), "transferRepository"), timeout).toCompletableFuture().get();
-        final ActorRef ledger = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(LedgerActor.props(transferRepository, accountPoolSize), "ledger"), timeout).toCompletableFuture().get();
+        final ActorRef idActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(IdActor.props(accountPoolSize, transferPoolSize),
+                "idActor"), timeout).toCompletableFuture().get();
+        final ActorRef transfers = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(TransfersActor.props(transferPoolSize),
+                "transfers"), timeout).toCompletableFuture().get();
+        final ActorRef ledger = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(LedgerActor.props(transfers, accountPoolSize),
+                "ledger"), timeout).toCompletableFuture().get();
 
         // create
-        system.actorOf(ClusterManager.props(idActor, ledger, transferRepository), "backend");
+        system.actorOf(ClusterManager.props(idActor, ledger, transfers), "backend");
     }
 }

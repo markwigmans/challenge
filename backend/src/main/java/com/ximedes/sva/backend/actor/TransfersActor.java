@@ -31,7 +31,7 @@ import static com.ximedes.sva.protocol.SimulationProtocol.Resetted;
 /**
  * Created by mawi on 12/08/2016.
  */
-public class TransferRepositoryActor extends AbstractLoggingActor {
+public class TransfersActor extends AbstractLoggingActor {
 
     private final ByteString[] transfers;
 
@@ -39,10 +39,10 @@ public class TransferRepositoryActor extends AbstractLoggingActor {
      * Create Props for an actor of this type.
      */
     public static Props props(final int transferSize) {
-        return Props.create(TransferRepositoryActor.class, transferSize);
+        return Props.create(TransfersActor.class, transferSize);
     }
 
-    private TransferRepositoryActor(final int transferSize) throws IOException {
+    private TransfersActor(final int transferSize) throws IOException {
         log().info("constructor({})", transferSize);
         transfers = new ByteString[transferSize];
         init();

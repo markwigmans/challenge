@@ -35,7 +35,6 @@ public class FrontendApplication {
      */
     public static void main(final String[] args) {
         Kamon.start();
-
         SpringApplication.run(FrontendApplication.class, args);
     }
 }

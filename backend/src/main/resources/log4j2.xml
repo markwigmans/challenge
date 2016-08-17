@@ -23,7 +23,7 @@
             <ThresholdFilter level="info"/>
         </Console>
 
-        <RollingFile name="RollingFile" fileName="logs/frontend.log" filePattern="logs/frontend-%i.log">
+        <RollingFile name="RollingFile" fileName="logs/backend.log" filePattern="logs/backend-%i.log">
             <PatternLayout pattern="%d %-5p [%t] [%X{akkaSource}] %c{1.} - %m%n"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="200 MB"/>

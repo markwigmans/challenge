@@ -15,10 +15,8 @@
  */
 package com.ximedes.sva.backend;
 
-import akka.actor.ActorSystem;
 import com.ximedes.sva.shared.BuildInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
+import kamon.Kamon;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
@@ -28,20 +26,13 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @EnableAutoConfiguration
 @ComponentScan(basePackageClasses = {BackendConfig.class, BuildInfo.class})
-public class BackendApplication implements CommandLineRunner {
-
-    @Autowired
-    private ActorSystem actorSystem;
+public class BackendApplication {
 
     /**
      * Start the whole application
      */
     public static void main(final String[] args) {
+        Kamon.start();
         SpringApplication.run(BackendApplication.class, args);
-    }
-
-    @Override
-    public void run(String... strings) throws Exception {
-        //actorSystem.actorOf((MetricsListener.props()), "metricsListener");
     }
 }

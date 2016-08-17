@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
 /**
  * Created by mawi on 13/08/2016.
  */
-public class TransferRepositoryActorTest {
+public class TransfersActorTest {
 
     private static ActorSystem system;
 
@@ -47,8 +47,8 @@ public class TransferRepositoryActorTest {
 
     @Test
     public void testToFromBytes() throws Exception {
-        final TestActorRef<TransferRepositoryActor> ref = TestActorRef.create(system, TransferRepositoryActor.props(5), "testA");
-        final TransferRepositoryActor actor = ref.underlyingActor();
+        final TestActorRef<TransfersActor> ref = TestActorRef.create(system, TransfersActor.props(5), "testA");
+        final TransfersActor actor = ref.underlyingActor();
 
         QueryTransferResponse msg1 = QueryTransferResponse.newBuilder()
                 .setTransferId(10)
