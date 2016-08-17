@@ -15,14 +15,19 @@
  */
 package com.ximedes.sva.frontend.actor;
 
+import akka.actor.AbstractActorWithUnboundedStash;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import akka.japi.pf.ReceiveBuilder;
 import com.google.protobuf.TextFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import scala.Option;
+import scala.PartialFunction;
+import scala.runtime.BoxedUnit;
 
 import java.util.List;
 
@@ -31,12 +36,16 @@ import static com.ximedes.sva.protocol.SimulationProtocol.Reset;
 import static com.ximedes.sva.protocol.SimulationProtocol.Resetted;
 
 /**
- * Created by mawi on 05/08/2016.
+ * Cache ID set locally.
  */
-class LocalIdActor extends AbstractLoggingActor {
+class LocalIdActor extends AbstractActorWithUnboundedStash {
+    private final LoggingAdapter log = Logging.getLogger(context().system(), this);
 
     private final IdQueue accountIds;
     private final IdQueue transferIds;
+
+    private final PartialFunction<Object, BoxedUnit> empty;
+    private final PartialFunction<Object, BoxedUnit> initialized;
 
     /**
      * Create Props for an actor of this type.
@@ -49,23 +58,31 @@ class LocalIdActor extends AbstractLoggingActor {
         this.accountIds = new IdQueue(IdType.ACCOUNTS, idActor, self(), accountSize, requestFactor, resizeFactor);
         this.transferIds = new IdQueue(IdType.TRANSFERS, idActor, self(), transferSize, requestFactor, resizeFactor);
 
-        receive(ReceiveBuilder
+        empty = ReceiveBuilder
+                .match(IdRangeResponse.class, this::IdRangeResponse)
+                .matchAny(msg -> stash())
+                .build();
+
+        initialized = ReceiveBuilder
                 .match(IdRequest.class, this::idRequest)
                 .match(IdRangeResponse.class, this::IdRangeResponse)
                 .match(Reset.class, this::reset)
                 .matchAny(this::unhandled)
-                .build());
+                .build();
+
+        // set start state
+        context().become(empty);
     }
 
     @Override
     public void preStart() throws Exception {
-        log().debug("preStart()");
+        log.debug("preStart()");
         initQueues();
     }
 
     @Override
-    public void preRestart(Throwable reason, Option<Object> message) throws Exception {
-        log().debug("preRestart()", reason);
+    public void preRestart(Throwable reason, Option<Object> message) {
+        log.debug("preRestart()", reason);
         // TODO return existing ID's
     }
 
@@ -84,23 +101,26 @@ class LocalIdActor extends AbstractLoggingActor {
         }
         // resend while the ID queue is being filed
         if (!successful) {
-            self().forward(request, context());
+            stash();
+            context().become(empty);
         }
     }
 
     private void IdRangeResponse(final IdRangeResponse response) {
-        log().debug("IdRangeResponse: '{}'", TextFormat.shortDebugString(response));
+        log.debug("IdRangeResponse: '{}'", TextFormat.shortDebugString(response));
         if (IdType.ACCOUNTS == response.getType()) {
             accountIds.addIds(response.getIdList());
         }
         if (IdType.TRANSFERS == response.getType()) {
             transferIds.addIds(response.getIdList());
         }
+        unstashAll();
+        context().become(initialized);
     }
 
     // reset the simulation
     void reset(final Reset message) {
-        log().info("reset()");
+        log.info("reset()");
         initQueues();
         sender().tell(Resetted.getDefaultInstance(), self());
     }
@@ -132,7 +152,10 @@ class LocalIdActor extends AbstractLoggingActor {
         public void init() {
             log.info("init({})", type);
             ids.clear();
+            queueResized = false;
             requestIds(preferredSize);
+
+            // TODO race condition if there is still an IdRangeRequest pending
         }
 
         /**
