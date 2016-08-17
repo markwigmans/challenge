@@ -20,10 +20,9 @@ import akka.actor.ActorSystem;
 import akka.pattern.PatternsCS;
 import akka.routing.RoundRobinPool;
 import akka.util.Timeout;
-import com.ximedes.sva.backend.actor.IdActor;
-import com.ximedes.sva.backend.actor.LedgerActor;
-import com.ximedes.sva.backend.actor.TransferRepositoryActor;
 import com.ximedes.sva.frontend.FrontendConfig;
+import com.ximedes.sva.shared.ClusterActors;
+import com.ximedes.sva.shared.ClusterRoles;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,42 +34,49 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ActorManager {
 
-    private final ActorRef transferRepository;
+    private final ActorSystem system;
+    private final ActorRef transfers;
     private final ActorRef ledger;
-    private final ActorRef idActor;
     private final ActorRef localIdActorRouter;
     private final ActorRef resetActor;
+
 
     /**
      * Auto wired constructor
      */
     @Autowired
     ActorManager(final ActorSystem system, final Timeout timeout, final FrontendConfig config) throws Exception {
-        super();
+        this.system = system;
+
         final int localIdActorPool = config.getLocalIdActorPool();
-        final int accountPoolSize = config.getAccountPoolSize();
-        final int transferPoolSize = config.getTransferPoolSize();
 
         system.actorOf(EventStreamActor.props(), "eventStreamActor");
 
         final ActorRef supervisor = system.actorOf(Supervisor.props(), "supervisor");
 
-        this.transferRepository = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(TransferRepositoryActor.props(transferPoolSize), "transferRepository"), timeout).toCompletableFuture().get();
-        this.ledger = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(LedgerActor.props(transferRepository, accountPoolSize), "ledger"), timeout).toCompletableFuture().get();
-        this.idActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(IdActor.props(accountPoolSize, transferPoolSize), "idActor"), timeout).toCompletableFuture().get();
+        this.transfers = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(BackendProxy.props(ClusterActors.TRANSFERS),
+                "proxy-transfers"), timeout).toCompletableFuture().get();
+        this.ledger = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(BackendProxy.props(ClusterActors.LEDGER),
+                "proxy-ledger"), timeout).toCompletableFuture().get();
+        final ActorRef idActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(BackendProxy.props(ClusterActors.ID_GENERATOR),
+                "proxy-idActor"), timeout).toCompletableFuture().get();
 
         this.localIdActorRouter = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(new RoundRobinPool(localIdActorPool)
-                .props(LocalIdActor.props(idActor, config.getAccountSize(), config.getTransferSize(), config.getFactor())), "localIdActorRouter"), timeout).toCompletableFuture().get();
+                .props(LocalIdActor.props(idActor, config.getAccountSize(), config.getTransferSize(), config.getRequestFactor(), config.getResizeFactor())),
+                "local-IdActorRouter"), timeout).toCompletableFuture().get();
 
         this.resetActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(ResetActor.props(), "resetActor"), timeout).toCompletableFuture().get();
+
+        // register frontend to the cluster
+        system.actorOf(ClusterManager.props(idActor, ledger, transfers), ClusterRoles.FRONTEND.getName());
     }
 
     public ActorRef getLedger() {
         return ledger;
     }
 
-    public ActorRef getTransferRepository() {
-        return transferRepository;
+    public ActorRef getTransfers() {
+        return transfers;
     }
 
     public ActorRef getLocalIdActor() {

@@ -30,7 +30,6 @@ import static com.ximedes.sva.protocol.BackendProtocol.*;
 import static com.ximedes.sva.protocol.SimulationProtocol.Reset;
 import static com.ximedes.sva.protocol.SimulationProtocol.Resetted;
 
-
 /**
  * Created by mawi on 05/08/2016.
  */
@@ -42,13 +41,13 @@ class LocalIdActor extends AbstractLoggingActor {
     /**
      * Create Props for an actor of this type.
      */
-    public static Props props(final ActorRef idActor, final int accountSize, final int transferSize, final int factor) {
-        return Props.create(LocalIdActor.class, idActor, accountSize, transferSize, factor);
+    public static Props props(final ActorRef idActor, final int accountSize, final int transferSize, final int requestFactor, float resizeFactor) {
+        return Props.create(LocalIdActor.class, idActor, accountSize, transferSize, requestFactor, resizeFactor);
     }
 
-    private LocalIdActor(final ActorRef idActor, int accountSize, int transferSize, int factor) {
-        this.accountIds = new IdQueue(IdType.ACCOUNTS, idActor, self(), accountSize, factor);
-        this.transferIds = new IdQueue(IdType.TRANSFERS, idActor, self(), transferSize, factor);
+    private LocalIdActor(final ActorRef idActor, final int accountSize, final int transferSize, final int requestFactor, final float resizeFactor) {
+        this.accountIds = new IdQueue(IdType.ACCOUNTS, idActor, self(), accountSize, requestFactor, resizeFactor);
+        this.transferIds = new IdQueue(IdType.TRANSFERS, idActor, self(), transferSize, requestFactor, resizeFactor);
 
         receive(ReceiveBuilder
                 .match(IdRequest.class, this::idRequest)
@@ -60,13 +59,13 @@ class LocalIdActor extends AbstractLoggingActor {
 
     @Override
     public void preStart() throws Exception {
-        log().info("preStart()");
+        log().debug("preStart()");
         initQueues();
     }
 
     @Override
     public void preRestart(Throwable reason, Option<Object> message) throws Exception {
-        log().info("preRestart()", reason);
+        log().debug("preRestart()", reason);
         // TODO return existing ID's
     }
 
@@ -114,22 +113,24 @@ class LocalIdActor extends AbstractLoggingActor {
         private CircularFifoBuffer ids;
         private int preferredSize;
         private final int requestFactor;
+        private final float resizeFactor;
         private boolean blockRequestSend;
         private boolean queueResized;
 
-        public IdQueue(final IdType type, final ActorRef actor, final ActorRef self, final int preferredSize, final int requestFactor) {
+        public IdQueue(final IdType type, final ActorRef actor, final ActorRef self, final int preferredSize, final int requestFactor, final float resizeFactor) {
             this.type = type;
             this.actor = actor;
             this.self = self;
             this.ids = new CircularFifoBuffer(preferredSize);
             this.preferredSize = preferredSize;
             this.requestFactor = requestFactor;
+            this.resizeFactor = resizeFactor;
             blockRequestSend = false;
             queueResized = false;
         }
 
         public void init() {
-            log.info("init()");
+            log.info("init({})", type);
             ids.clear();
             requestIds(preferredSize);
         }
@@ -142,24 +143,25 @@ class LocalIdActor extends AbstractLoggingActor {
             if (ids.isEmpty()) {
                 if (!queueResized) {
                     // resize queue
-                    preferredSize *= 1.5;
-                    log.warn("queue ({}) is empty, resize to: {}", type, preferredSize);
+                    preferredSize *= resizeFactor;
+                    log.info("queue({}) is empty, resize to: {}", type, preferredSize);
                     this.ids = new CircularFifoBuffer(preferredSize);
                     queueResized = true;
                 } else {
-                    log.debug("queue ({}) still empty", type);
+                    log.debug("queue({}) still empty", type);
                 }
                 return false;
             } else {
                 final Integer id = (Integer) ids.remove();
-                final IdResponse message = IdResponse.newBuilder().setType(type).setId(id).build();
-                sender.tell(message, self);
+                sender.tell(IdResponse.newBuilder().setType(type).setId(id).build(), self);
+
+                // check if we need more ID's
                 if (!blockRequestSend && (ids.size() * requestFactor <= preferredSize)) {
                     // we need more ID's
                     requestIds(preferredSize - ids.size());
                 }
+                return true;
             }
-            return true;
         }
 
         void requestIds(final int size) {

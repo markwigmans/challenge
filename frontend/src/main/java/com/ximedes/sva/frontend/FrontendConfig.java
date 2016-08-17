@@ -19,6 +19,7 @@ import akka.actor.ActorSystem;
 import akka.util.Timeout;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.ximedes.sva.shared.ClusterRoles;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -36,28 +37,25 @@ public class FrontendConfig {
     /**
      * Default timeout for processing calls.
      */
-    @Value("${frontend.actor.ask.timeout.ms:5000}")
+    @Value("${actor.ask.timeout.ms:5000}")
     private int timeout;
 
-    @Value("${frontend.actor.idActor.pool:8}")
+    @Value("${actor.idActor.pool:8}")
     private int localIdActorPool;
 
-    @Value("${frontend.account.pool:360000}")
-    private int accountPoolSize;
-
-    @Value("${frontend.transfer.pool:1200000}")
-    private int transferPoolSize;
-
-    @Value("${frontend.account.id.pool:32}")
+    @Value("${account.id.pool:64}")
     private int accountSize;
-    @Value("${frontend.transfer.id.pool:32}")
+    @Value("${transfer.id.pool:64}")
     private int transferSize;
-    @Value("${frontend.id.pool.factor:2}")
-    private int factor;
+    @Value("${id.pool.request.factor:2}")
+    private int requestFactor;
+    @Value("${id.pool.resize.factor:1.5}")
+    private float resizeFactor;
 
     @Bean
     ActorSystem actorSystem() {
-        final Config config = ConfigFactory.parseString("akka.cluster.roles = [frontend]").withFallback(ConfigFactory.load());
+        final String roles = String.format("akka.cluster.roles = [%s]", ClusterRoles.FRONTEND.getName());
+        final Config config = ConfigFactory.parseString(roles).withFallback(ConfigFactory.load());
         return ActorSystem.create("sva-cluster", config);
     }
 
@@ -70,14 +68,6 @@ public class FrontendConfig {
         return localIdActorPool;
     }
 
-    public int getAccountPoolSize() {
-        return accountPoolSize;
-    }
-
-    public int getTransferPoolSize() {
-        return transferPoolSize;
-    }
-
     public int getAccountSize() {
         return accountSize;
     }
@@ -86,7 +76,11 @@ public class FrontendConfig {
         return transferSize;
     }
 
-    public int getFactor() {
-        return factor;
+    public int getRequestFactor() {
+        return requestFactor;
+    }
+
+    public float getResizeFactor() {
+        return resizeFactor;
     }
 }

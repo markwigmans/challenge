@@ -41,7 +41,7 @@ public class TransferService {
     @Autowired
     public TransferService(final ActorManager actorManager, final Timeout timeout) {
         this.ledger = actorManager.getLedger();
-        this.transferRepository = actorManager.getTransferRepository();
+        this.transferRepository = actorManager.getTransfers();
         this.idActor = actorManager.getLocalIdActor();
         this.timeout = timeout;
     }

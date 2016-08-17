@@ -1,7 +1,5 @@
 option java_package = "com.ximedes.sva.protocol";
 option java_outer_classname = "SimulationProtocol";
-option optimize_for = SPEED;
-
 
 message Reset {
 }

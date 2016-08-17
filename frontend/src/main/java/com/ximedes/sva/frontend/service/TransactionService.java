@@ -39,7 +39,7 @@ public class TransactionService {
      */
     @Autowired
     public TransactionService(final ActorManager actorManager, final Timeout timeout) {
-        this.transferRepository = actorManager.getTransferRepository();
+        this.transferRepository = actorManager.getTransfers();
         this.timeout = timeout;
     }
 

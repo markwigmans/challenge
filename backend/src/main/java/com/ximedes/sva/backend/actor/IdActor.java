@@ -67,6 +67,7 @@ public class IdActor extends AbstractLoggingActor {
     }
 
     private void idRequest(IdRequest request) {
+        log().debug("idRequest: '{}'", TextFormat.shortDebugString(request));
         if (IdType.ACCOUNTS == request.getType()) {
             final IdResponse message = IdResponse.newBuilder().setType(request.getType()).setId(accountWatermark).build();
             sender().tell(message, self());

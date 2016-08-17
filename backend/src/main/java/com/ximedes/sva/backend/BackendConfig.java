@@ -19,6 +19,7 @@ import akka.actor.ActorSystem;
 import akka.util.Timeout;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.ximedes.sva.shared.ClusterRoles;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,22 +30,37 @@ import java.util.concurrent.TimeUnit;
  * Created by mawi on 22/07/2016.
  */
 @Configuration
-class BackendConfig {
+public class BackendConfig {
 
     /**
      * Default timeout for processing calls.
      */
-    @Value("${backend.actor.ask.timeout.ms:500}")
+    @Value("${actor.ask.timeout.ms:500}")
     private int timeout;
+
+    @Value("${account.pool:360000}")
+    private int accountPoolSize;
+
+    @Value("${transfer.pool:1200000}")
+    private int transferPoolSize;
 
     @Bean
     ActorSystem actorSystem() {
-        final Config config = ConfigFactory.parseString("akka.cluster.roles = [backend]").withFallback(ConfigFactory.load());
+        final String roles = String.format("akka.cluster.roles = [%s]", ClusterRoles.BACKEND.getName());
+        final Config config = ConfigFactory.parseString(roles).withFallback(ConfigFactory.load());
         return ActorSystem.create("sva-cluster", config);
     }
 
     @Bean
     Timeout timeout() {
         return Timeout.apply(timeout, TimeUnit.MILLISECONDS);
+    }
+
+    public int getAccountPoolSize() {
+        return accountPoolSize;
+    }
+
+    public int getTransferPoolSize() {
+        return transferPoolSize;
     }
 }

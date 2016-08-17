@@ -13,26 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.sva.frontend.actor;
-
-import akka.actor.AbstractLoggingActor;
-import akka.actor.Props;
-import akka.japi.pf.ReceiveBuilder;
+package com.ximedes.sva.shared;
 
 /**
- * Created by mawi on 22/07/2016.
+ * The roles within the cluster
  */
-class BackendActor extends AbstractLoggingActor {
+public enum ClusterRoles {
+    BACKEND("backend"),
+    FRONTEND("frontend");
 
-    /**
-     * Create Props for an actor of this type.
-     */
-    public static Props props() {
-        return Props.create(BackendActor.class, BackendActor::new);
+    private final String name;
+
+
+    ClusterRoles(String name) {
+        this.name = name;
     }
 
-    private BackendActor() {
-        receive(ReceiveBuilder
-                .matchAny(o -> log().warning("received unknown message: {}", o)).build());
+    public String getName() {
+        return name;
     }
 }

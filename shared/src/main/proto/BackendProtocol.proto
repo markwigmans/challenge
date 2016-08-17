@@ -1,6 +1,5 @@
 option java_package = "com.ximedes.sva.protocol";
 option java_outer_classname = "BackendProtocol";
-option optimize_for = SPEED;
 
 message CreateAccountMessage {
     required int32 account_id = 1;

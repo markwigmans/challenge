@@ -73,12 +73,6 @@
             <artifactId>shared</artifactId>
         </dependency>
 
-        <!-- TODO remove backend dependency -->
-        <dependency>
-            <groupId>com.ximedes.sva</groupId>
-            <artifactId>backend</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor_2.11</artifactId>
