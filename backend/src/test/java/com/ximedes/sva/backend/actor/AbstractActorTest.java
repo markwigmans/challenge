@@ -13,32 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sva
+package com.ximedes.sva.backend.actor;
 
-import io.gatling.core.Predef._
-import io.gatling.http.Predef._
+import akka.actor.ActorSystem;
+import akka.testkit.JavaTestKit;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
 /**
-  * Created by mawi on 23/07/2016.
-  */
-object Config {
+ * Created by mawi on 18/08/2016.
+ */
+public class AbstractActorTest {
+    protected static ActorSystem system;
 
-  // URL of the System Under Test
-  val httpConf = http.baseURL("http://localhost:8080/")
+    @BeforeClass
+    public static void setup() {
+        system = ActorSystem.create();
+    }
 
-  // Number of accounts
-  val accounts = 297000
-  val merchants = 3000
-
-  // Number of runs per user during initialisation
-  val initUsers = 200
-
-  /*
-  val accounts = 2970
-  val merchants = 30
-  val initUsers = 2
-  */
-
-  val transfers = 1000000
-  val loadUsers = 200
+    @AfterClass
+    public static void teardown() {
+        JavaTestKit.shutdownActorSystem(system);
+        system = null;
+    }
 }

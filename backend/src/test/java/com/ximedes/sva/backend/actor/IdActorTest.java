@@ -18,12 +18,13 @@ package com.ximedes.sva.backend.actor;
 import akka.actor.ActorSystem;
 import akka.testkit.JavaTestKit;
 import akka.testkit.TestActorRef;
+import com.ximedes.sva.protocol.BackendProtocol;
 import org.hamcrest.CoreMatchers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static com.ximedes.sva.protocol.BackendProtocol.IdRangeResponse;
+import static com.ximedes.sva.protocol.BackendProtocol.*;
 import static com.ximedes.sva.protocol.BackendProtocol.IdType;
 import static org.junit.Assert.assertThat;
 
@@ -52,9 +53,9 @@ public class IdActorTest {
         final IdActor actor = ref.underlyingActor();
 
         final int count = 5;
-        final IdRangeResponse response = actor.createResponse(IdType.ACCOUNTS, 3, count, maxAccounts);
-        assertThat(response.getIdList().size(), CoreMatchers.is(count));
-        assertThat(response.getIdList(), CoreMatchers.hasItems(3,4,5,6,7));
+        final IdsResponse response = actor.createResponse(IdType.ACCOUNTS, 3, count, maxAccounts);
+        assertThat(response.getIdsList().size(), CoreMatchers.is(count));
+        assertThat(response.getIdsList(), CoreMatchers.hasItems(3,4,5,6,7));
     }
 
     @Test
@@ -64,8 +65,8 @@ public class IdActorTest {
         final IdActor actor = ref.underlyingActor();
 
         final int count = 5;
-        final IdRangeResponse response = actor.createResponse(IdType.ACCOUNTS, 18, count, maxAccounts);
-        assertThat(response.getIdList().size(), CoreMatchers.is(2));
-        assertThat(response.getIdList(), CoreMatchers.hasItems(18,19));
+        final IdsResponse response = actor.createResponse(IdType.ACCOUNTS, 18, count, maxAccounts);
+        assertThat(response.getIdsList().size(), CoreMatchers.is(2));
+        assertThat(response.getIdsList(), CoreMatchers.hasItems(18,19));
     }
 }

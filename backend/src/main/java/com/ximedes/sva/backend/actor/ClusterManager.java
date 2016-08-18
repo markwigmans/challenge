@@ -23,11 +23,11 @@ import akka.cluster.ClusterEvent;
 import akka.cluster.Member;
 import akka.cluster.MemberStatus;
 import akka.japi.pf.ReceiveBuilder;
-import static  com.ximedes.sva.shared.ClusterActors.*;
-import static com.ximedes.sva.shared.ClusterRoles.*;
 
 import static com.ximedes.sva.protocol.ClusterProtocol.ActorReference;
 import static com.ximedes.sva.protocol.ClusterProtocol.BackendRegistration;
+import static com.ximedes.sva.shared.ClusterActors.*;
+import static com.ximedes.sva.shared.ClusterRoles.FRONTEND;
 
 /**
  * Created by mawi on 16/08/2016.
@@ -55,7 +55,7 @@ public class ClusterManager extends AbstractLoggingActor {
 
         receive(ReceiveBuilder
                 .match(ClusterEvent.CurrentClusterState.class, this::currentClusterState)
-                .match(ClusterEvent.MemberUp.class, this::memberUp )
+                .match(ClusterEvent.MemberUp.class, this::memberUp)
                 .matchAny(this::unhandled)
                 .build());
     }

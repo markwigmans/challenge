@@ -27,7 +27,7 @@ class CheckSimulation extends Simulation {
   val queryAccountsChain =
     repeat(userBatchSize, "accountId") {
       exec((s: Session) => {
-        val id = userBatchSize * (s.userId - 1) + s("accountId").as[Int]
+        val id = userBatchSize * (s.userId % Config.initUsers) + s("accountId").as[Int]
         s.set("id", id)
       })
         .exec(http("query users").get("account/${id}").check(status.in(200, 404)))
@@ -37,19 +37,19 @@ class CheckSimulation extends Simulation {
   val queryTransfersChain =
     repeat(transferBatchSize, "transferId") {
       exec((s: Session) => {
-        val id = transferBatchSize * (s.userId - 1) + s("transferId").as[Int]
+        val id = transferBatchSize * (s.userId % Config.loadUsers) + s("transferId").as[Int]
         s.set("id", id)
       })
-        .exec(http("query users").get("transfer/${id}").check(status.in(200, 404)))
+        .exec(http("query transfers").get("transfer/${id}").check(status.in(200, 404)))
     }
 
   val queryTransactionsChain =
     repeat(transferBatchSize, "transactionId") {
       exec((s: Session) => {
-        val id = transferBatchSize * (s.userId - 1) + s("transactionId").as[Int]
+        val id = transferBatchSize * (s.userId % Config.loadUsers) + s("transactionId").as[Int]
         s.set("id", id)
       })
-        .exec(http("query users").get("transaction/${id}").check(status.in(200, 404)))
+        .exec(http("query transactions").get("transaction/${id}").check(status.in(200, 404)))
     }
 
   val accountScn = scenario("accounts").exec(queryAccountsChain)

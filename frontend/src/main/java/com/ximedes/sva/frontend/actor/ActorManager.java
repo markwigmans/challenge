@@ -62,7 +62,7 @@ public class ActorManager {
                 "proxy-idActor"), timeout).toCompletableFuture().get();
 
         this.localIdActorRouter = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(new RoundRobinPool(localIdActorPool)
-                .props(LocalIdActor.props(idActor, config.getAccountSize(), config.getTransferSize(), config.getRequestFactor(), config.getResizeFactor())),
+                .props(LocalIdActor.props(idActor, config.getIdPoolSize(), config.getRequestFactor(), config.getResizeFactor())),
                 "local-IdActorRouter"), timeout).toCompletableFuture().get();
 
         this.resetActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(ResetActor.props(), "resetActor"), timeout).toCompletableFuture().get();

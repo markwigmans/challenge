@@ -50,22 +50,22 @@ class LocalIdActor extends AbstractActorWithUnboundedStash {
     /**
      * Create Props for an actor of this type.
      */
-    public static Props props(final ActorRef idActor, final int accountSize, final int transferSize, final int requestFactor, float resizeFactor) {
-        return Props.create(LocalIdActor.class, idActor, accountSize, transferSize, requestFactor, resizeFactor);
+    public static Props props(final ActorRef idActor, final int idPoolSize, final int requestFactor, float resizeFactor) {
+        return Props.create(LocalIdActor.class, idActor, idPoolSize, requestFactor, resizeFactor);
     }
 
-    private LocalIdActor(final ActorRef idActor, final int accountSize, final int transferSize, final int requestFactor, final float resizeFactor) {
-        this.accountIds = new IdQueue(IdType.ACCOUNTS, idActor, self(), accountSize, requestFactor, resizeFactor);
-        this.transferIds = new IdQueue(IdType.TRANSFERS, idActor, self(), transferSize, requestFactor, resizeFactor);
+    private LocalIdActor(final ActorRef idActor, final int idPoolSize, final int requestFactor, final float resizeFactor) {
+        this.accountIds = new IdQueue(IdType.ACCOUNTS, idActor, self(), idPoolSize, requestFactor, resizeFactor);
+        this.transferIds = new IdQueue(IdType.TRANSFERS, idActor, self(), idPoolSize, requestFactor, resizeFactor);
 
         empty = ReceiveBuilder
-                .match(IdRangeResponse.class, this::IdRangeResponse)
+                .match(IdsResponse.class, this::IdsResponse)
                 .matchAny(msg -> stash())
                 .build();
 
         initialized = ReceiveBuilder
                 .match(IdRequest.class, this::idRequest)
-                .match(IdRangeResponse.class, this::IdRangeResponse)
+                .match(IdsResponse.class, this::IdsResponse)
                 .match(Reset.class, this::reset)
                 .matchAny(this::unhandled)
                 .build();
@@ -106,13 +106,13 @@ class LocalIdActor extends AbstractActorWithUnboundedStash {
         }
     }
 
-    private void IdRangeResponse(final IdRangeResponse response) {
+    private void IdsResponse(final IdsResponse response) {
         log.debug("IdRangeResponse: '{}'", TextFormat.shortDebugString(response));
         if (IdType.ACCOUNTS == response.getType()) {
-            accountIds.addIds(response.getIdList());
+            accountIds.addIds(response.getIdsList());
         }
         if (IdType.TRANSFERS == response.getType()) {
-            transferIds.addIds(response.getIdList());
+            transferIds.addIds(response.getIdsList());
         }
         unstashAll();
         context().become(initialized);
@@ -187,9 +187,9 @@ class LocalIdActor extends AbstractActorWithUnboundedStash {
             }
         }
 
-        void requestIds(final int size) {
-            log.debug("{} : requestIds({})", type, size);
-            actor.tell(IdRangeRequest.newBuilder().setType(type).setIds(size).build(), self);
+        void requestIds(final int count) {
+            log.debug("{} : requestIds({})", type, count);
+            actor.tell(IdsRequest.newBuilder().setType(type).setCount(count).build(), self);
             blockRequestSend = true;
         }
 

@@ -21,6 +21,17 @@ message QueryAccountResponse {
     required EnumStatus status = 4;
 }
 
+message QueryAccountRangeRequest {
+    required int32 start_account_id = 1;
+    required int32 end_account_id = 2;
+}
+message QueryAccountsRequest {
+    repeated int32 account_ids = 1 [packed=true];
+}
+message QueryAccountsResponse {
+    repeated QueryAccountResponse accounts = 1;
+}
+
 message CreateTransferMessage {
     required int32 transfer_id = 1;
     required int32 from = 2;
@@ -47,6 +58,18 @@ message QueryTransferResponse {
     required EnumStatus status = 5;
 }
 
+message QueryTransferRangeRequest {
+    required int32 start_transfer_id = 1;
+    required int32 end_transfer_id = 2;
+}
+message QueryTransfersRequest {
+    repeated int32 transfer_ids = 1 [packed=true];
+}
+message QueryTransfersResponse {
+    repeated QueryTransferResponse transfers = 1;
+}
+
+
 enum IdType {
     ACCOUNTS = 1;
     TRANSFERS = 2;
@@ -55,24 +78,22 @@ enum IdType {
 message IdRequest {
     required IdType type = 1;
 }
-
+message IdsRequest {
+    required IdType type = 1;
+    required int32 count = 2;
+}
 message IdResponse {
     required IdType type = 1;
     optional int32 id = 2;
 }
 
-message IdRangeRequest {
+message IdsResponse {
     required IdType type = 1;
-    required int32 ids = 2;
-}
-
-message IdRangeResponse {
-    required IdType type = 1;
-    repeated int32 id = 2 [packed=true];
+    repeated int32 ids = 2 [packed=true];
 }
 
 // return given ID's to the pool
-message IdReturnMessage {
+message IdsReturnMessage {
     required IdType type = 1;
     repeated int32 id = 2 [packed=true];
 }

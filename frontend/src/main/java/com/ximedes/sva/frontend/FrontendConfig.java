@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,10 +44,8 @@ public class FrontendConfig {
     @Value("${actor.idActor.pool:8}")
     private int localIdActorPool;
 
-    @Value("${account.id.pool:64}")
-    private int accountSize;
-    @Value("${transfer.id.pool:64}")
-    private int transferSize;
+    @Value("${id.pool:256}")
+    private int idPoolSize;
     @Value("${id.pool.request.factor:2}")
     private int requestFactor;
     @Value("${id.pool.resize.factor:1.5}")
@@ -64,16 +63,21 @@ public class FrontendConfig {
         return Timeout.apply(timeout, TimeUnit.MILLISECONDS);
     }
 
+    @PostConstruct
+    void postConstruct() {
+        log.info("timeout:{}", timeout);
+        log.info("localIdActorPool:{}", localIdActorPool);
+        log.info("idPoolSize:{}", idPoolSize);
+        log.info("requestFactor:{}", requestFactor);
+        log.info("resizeFactor:{}", resizeFactor);
+    }
+
     public int getLocalIdActorPool() {
         return localIdActorPool;
     }
 
-    public int getAccountSize() {
-        return accountSize;
-    }
-
-    public int getTransferSize() {
-        return transferSize;
+    public int getIdPoolSize() {
+        return idPoolSize;
     }
 
     public int getRequestFactor() {

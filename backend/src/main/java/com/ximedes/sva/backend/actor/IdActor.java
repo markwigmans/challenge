@@ -20,7 +20,6 @@ import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.google.protobuf.TextFormat;
 
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -54,7 +53,7 @@ public class IdActor extends AbstractLoggingActor {
         init();
 
         receive(ReceiveBuilder
-                .match(IdRangeRequest.class, this::idRangeRequest)
+                .match(IdsRequest.class, this::idsRequest)
                 .match(IdRequest.class, this::idRequest)
                 .match(Reset.class, this::reset)
                 .matchAny(this::unhandled)
@@ -80,26 +79,26 @@ public class IdActor extends AbstractLoggingActor {
         }
     }
 
-    private void idRangeRequest(final IdRangeRequest request) {
+    private void idsRequest(final IdsRequest request) {
         log().debug("idRangeRequest: '{}'", TextFormat.shortDebugString(request));
         if (IdType.ACCOUNTS == request.getType()) {
             // return account ID's
-            IdRangeResponse message = createResponse(request.getType(), accountWatermark, request.getIds(), maxAccounts);
+            IdsResponse message = createResponse(request.getType(), accountWatermark, request.getCount(), maxAccounts);
             sender().tell(message, self());
-            accountWatermark += request.getIds();
+            accountWatermark += request.getCount();
         }
         if (IdType.TRANSFERS == request.getType()) {
-            IdRangeResponse message = createResponse(request.getType(), transferWatermark, request.getIds(), maxTransfers);
+            IdsResponse message = createResponse(request.getType(), transferWatermark, request.getCount(), maxTransfers);
             sender().tell(message, self());
-            transferWatermark += request.getIds();
+            transferWatermark += request.getCount();
         }
     }
 
-    IdRangeResponse createResponse(final IdType type, final int start, final int count, final int max) {
+    IdsResponse createResponse(final IdType type, final int start, final int count, final int max) {
         log().debug("createResponse({},{},{},{})'", type, start, count, max);
-        final IdRangeResponse.Builder builder = IdRangeResponse.newBuilder().setType(type);
+        final IdsResponse.Builder builder = IdsResponse.newBuilder().setType(type);
 
-        builder.addAllId(IntStream.range(start, start + count).filter(i -> i < max).boxed().collect(Collectors.toList()));
+        builder.addAllIds(IntStream.range(start, start + count).filter(i -> i < max).boxed().collect(Collectors.toList()));
         return builder.build();
     }
 

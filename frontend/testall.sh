@@ -14,9 +14,6 @@
 # limitations under the License.
 #
 
-FROM java:8-alpine
-VOLUME /tmp
-ADD frontend.jar app.jar
-RUN sh -c 'touch /app.jar'
-EXPOSE 2551 8080
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+mvn gatling:execute -Dgatling.simulationClass=sva.InitSimulation
+mvn gatling:execute -Dgatling.simulationClass=sva.LoadSimulation
+mvn gatling:execute -Dgatling.simulationClass=sva.CheckSimulation

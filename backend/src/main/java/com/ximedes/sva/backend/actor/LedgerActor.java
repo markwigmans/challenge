@@ -22,6 +22,8 @@ import akka.japi.pf.ReceiveBuilder;
 import com.google.protobuf.TextFormat;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.ximedes.sva.protocol.BackendProtocol.*;
 import static com.ximedes.sva.protocol.SimulationProtocol.Reset;
@@ -56,6 +58,8 @@ public class LedgerActor extends AbstractLoggingActor {
                 .match(CreateAccountMessage.class, this::createAccount)
                 .match(CreateTransferMessage.class, this::processTransfer)
                 .match(QueryAccountRequest.class, this::queryAccount)
+                .match(QueryAccountRangeRequest.class, this::queryAccountRangeRequest)
+                .match(QueryAccountsRequest.class, this::queryAccountsRequest)
                 .match(Reset.class, this::reset)
                 .matchAny(this::unhandled)
                 .build());
@@ -83,7 +87,7 @@ public class LedgerActor extends AbstractLoggingActor {
             balance[message.getAccountId()] = 0;
             overdraft[message.getAccountId()] = message.getOverdraft();
         } else {
-            log().error("illegal account ID: '{}'", message.getAccountId());
+            log().warning("illegal account ID: '{}'", message.getAccountId());
         }
     }
 
@@ -93,20 +97,39 @@ public class LedgerActor extends AbstractLoggingActor {
 
     void queryAccount(final QueryAccountRequest request) {
         log().debug("message received: [{}]", TextFormat.shortDebugString(request));
+        sender().tell(transform(request.getAccountId()), self());
+    }
+
+    QueryAccountResponse transform(final int id) {
         final QueryAccountResponse response;
-        if (accountFound(request.getAccountId())) {
+        if (accountFound(id)) {
             response = QueryAccountResponse.newBuilder()
-                    .setAccountId(request.getAccountId())
-                    .setBalance(balance[request.getAccountId()])
-                    .setOverdraft(overdraft[request.getAccountId()])
+                    .setAccountId(id)
+                    .setBalance(balance[id])
+                    .setOverdraft(overdraft[id])
                     .setStatus(QueryAccountResponse.EnumStatus.CONFIRMED)
                     .build();
         } else {
             response = QueryAccountResponse.newBuilder()
-                    .setAccountId(request.getAccountId())
+                    .setAccountId(id)
                     .setStatus(QueryAccountResponse.EnumStatus.ACCOUNT_NOT_FOUND).build();
         }
-        sender().tell(response, self());
+        return response;
+    }
+
+    void queryAccountRangeRequest(final QueryAccountRangeRequest request) {
+        final QueryAccountsResponse.Builder builder = QueryAccountsResponse.newBuilder();
+        builder.addAllAccounts(IntStream.range(request.getStartAccountId(), request.getEndAccountId()).boxed()
+                .map(this::transform)
+                .collect(Collectors.toList()));
+
+        sender().tell(builder.build(), self());
+    }
+
+    void queryAccountsRequest(final QueryAccountsRequest request) {
+        final QueryAccountsResponse.Builder builder = QueryAccountsResponse.newBuilder();
+        builder.addAllAccounts(request.getAccountIdsList().stream().map(this::transform).collect(Collectors.toList()));
+        sender().tell(builder.build(), self());
     }
 
     boolean accountFound(final int id) {
@@ -126,15 +149,14 @@ public class LedgerActor extends AbstractLoggingActor {
             // check balance
             if (balance[from] + overdraft[from] - amount >= 0) {
                 //log().debug("sufficient funds: [{},{},{}]", from, to, amount);
-                balance[from]   -= amount;
-                balance[to]     += amount;
+                balance[from] -= amount;
+                balance[to] += amount;
                 return QueryTransferResponse.EnumStatus.CONFIRMED;
             } else {
                 //log().debug("insufficient funds: [{},{},{}]", from, to, amount);
                 return QueryTransferResponse.EnumStatus.INSUFFICIENT_FUNDS;
             }
-        }
-        else {
+        } else {
             return QueryTransferResponse.EnumStatus.ACCOUNT_NOT_FOUND;
         }
     }

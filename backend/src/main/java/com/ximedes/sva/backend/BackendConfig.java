@@ -20,16 +20,19 @@ import akka.util.Timeout;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.ximedes.sva.shared.ClusterRoles;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mawi on 22/07/2016.
  */
 @Configuration
+@Slf4j
 public class BackendConfig {
 
     /**
@@ -54,6 +57,13 @@ public class BackendConfig {
     @Bean
     Timeout timeout() {
         return Timeout.apply(timeout, TimeUnit.MILLISECONDS);
+    }
+
+    @PostConstruct
+    void postConstruct() {
+        log.info("timeout:{}", timeout);
+        log.info("accountPoolSize:{}", accountPoolSize);
+        log.info("transferPoolSize:{}", transferPoolSize);
     }
 
     public int getAccountPoolSize() {

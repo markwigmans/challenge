@@ -23,7 +23,7 @@ import io.gatling.http.Predef._
   */
 class LoadSimulation extends Simulation {
 
-  val scn = scenario("transfers").repeat((Config.transfers / Config.loadUsers).get) {
+  val scn = scenario("create transfers").repeat((Config.transfers / Config.loadUsers).get) {
     randomSwitch(30.0 -> ToMerchant.process, 70.0 -> FromMerchant.process)
   }
 
@@ -43,7 +43,7 @@ object ToMerchant {
         .set("to", to)
         .set("amount", amount)
     })
-      .exec(http("transfer").post("transfer").body(StringBody("""{"from" : "${from}","to": "${to}","amount":"${amount}"}""")).asJSON.check(status.is(202)))
+      .exec(http("create TO merchant transfer").post("transfer").body(StringBody("""{"from" : "${from}","to": "${to}","amount":"${amount}"}""")).asJSON.check(status.is(202)))
 }
 
 object FromMerchant {
@@ -57,6 +57,6 @@ object FromMerchant {
         .set("to", to)
         .set("amount", amount)
     })
-      .exec(http("transfer").post("transfer").body(StringBody("""{"from" : "${from}","to": "${to}","amount":"${amount}"}""")).asJSON.check(status.is(202)))
+      .exec(http("create FROM merchant transfer").post("transfer").body(StringBody("""{"from" : "${from}","to": "${to}","amount":"${amount}"}""")).asJSON.check(status.is(202)))
 }
 
