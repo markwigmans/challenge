@@ -16,7 +16,6 @@
 package com.ximedes.sva.frontend.actor;
 
 import akka.actor.AbstractActorWithUnboundedStash;
-import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.event.Logging;

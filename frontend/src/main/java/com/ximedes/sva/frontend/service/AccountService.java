@@ -31,7 +31,7 @@ import static com.ximedes.sva.protocol.BackendProtocol.*;
 public class AccountService {
 
     private final ActorRef ledger;
-    private final ActorRef idActor;
+    private final ActorRef idProducer;
     private final Timeout timeout;
 
     /**
@@ -40,14 +40,14 @@ public class AccountService {
     @Autowired
     public AccountService(final ActorManager actorManager, final Timeout timeout) {
         this.ledger = actorManager.getLedger();
-        this.idActor = actorManager.getLocalIdActor();
+        this.idProducer = actorManager.getIdProducer();
         this.timeout = timeout;
     }
 
     public CompletableFuture<Account> createAccount(final Account request) {
         final int overDraft = request.getOverdraft() == null ? 0 : request.getOverdraft();
         final IdRequest idRequest = IdRequest.newBuilder().setType(IdType.ACCOUNTS).build();
-        final CompletableFuture<Object> ask = PatternsCS.ask(idActor, idRequest, timeout).toCompletableFuture();
+        final CompletableFuture<Object> ask = PatternsCS.ask(idProducer, idRequest, timeout).toCompletableFuture();
 
         return ask.thenApply(r -> {
             final IdResponse response = (IdResponse) r;

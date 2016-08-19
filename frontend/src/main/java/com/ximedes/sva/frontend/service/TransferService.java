@@ -31,8 +31,8 @@ import static com.ximedes.sva.protocol.BackendProtocol.*;
 public class TransferService {
 
     private final ActorRef ledger;
-    private final ActorRef transferRepository;
-    private final ActorRef idActor;
+    private final ActorRef transfers;
+    private final ActorRef idProducer;
     private final Timeout timeout;
 
     /**
@@ -41,14 +41,14 @@ public class TransferService {
     @Autowired
     public TransferService(final ActorManager actorManager, final Timeout timeout) {
         this.ledger = actorManager.getLedger();
-        this.transferRepository = actorManager.getTransfers();
-        this.idActor = actorManager.getLocalIdActor();
+        this.transfers = actorManager.getTransfers();
+        this.idProducer = actorManager.getIdProducer();
         this.timeout = timeout;
     }
 
     public CompletableFuture<Transfer> createTransfer(final Transfer request) {
         final IdRequest idRequest = IdRequest.newBuilder().setType(IdType.TRANSFERS).build();
-        final CompletableFuture<Object> ask = PatternsCS.ask(idActor, idRequest, timeout).toCompletableFuture();
+        final CompletableFuture<Object> ask = PatternsCS.ask(idProducer, idRequest, timeout).toCompletableFuture();
 
         return ask.thenApply(r -> {
             final IdResponse response = (IdResponse) r;
@@ -65,7 +65,7 @@ public class TransferService {
     public CompletableFuture<Transfer> queryTransfer(final String transferId) {
         final int id = Integer.parseInt(transferId);
         final QueryTransferRequest message = QueryTransferRequest.newBuilder().setTransferId(id).build();
-        final CompletableFuture<Object> ask = PatternsCS.ask(transferRepository, message, timeout).toCompletableFuture();
+        final CompletableFuture<Object> ask = PatternsCS.ask(transfers, message, timeout).toCompletableFuture();
 
         return ask.thenApply(r -> {
             final QueryTransferResponse response = (QueryTransferResponse) r;

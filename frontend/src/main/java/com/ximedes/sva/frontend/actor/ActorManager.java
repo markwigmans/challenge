@@ -79,7 +79,7 @@ public class ActorManager {
         return transfers;
     }
 
-    public ActorRef getLocalIdActor() {
+    public ActorRef getIdProducer() {
         return localIdActorRouter;
     }
 

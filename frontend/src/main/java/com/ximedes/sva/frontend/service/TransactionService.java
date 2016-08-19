@@ -31,7 +31,7 @@ import static com.ximedes.sva.protocol.BackendProtocol.QueryTransferResponse;
 @Service
 public class TransactionService {
 
-    private final ActorRef transferRepository;
+    private final ActorRef transfers;
     private final Timeout timeout;
 
     /**
@@ -39,14 +39,14 @@ public class TransactionService {
      */
     @Autowired
     public TransactionService(final ActorManager actorManager, final Timeout timeout) {
-        this.transferRepository = actorManager.getTransfers();
+        this.transfers = actorManager.getTransfers();
         this.timeout = timeout;
     }
 
     public CompletableFuture<Transaction> queryTransaction(final String transactionId) {
         final int id = Integer.parseInt(transactionId);
         final QueryTransferRequest message = QueryTransferRequest.newBuilder().setTransferId(id).build();
-        final CompletableFuture<Object> ask = PatternsCS.ask(transferRepository, message, timeout).toCompletableFuture();
+        final CompletableFuture<Object> ask = PatternsCS.ask(transfers, message, timeout).toCompletableFuture();
 
         return ask.thenApply(r -> {
             final QueryTransferResponse response = (QueryTransferResponse) r;
