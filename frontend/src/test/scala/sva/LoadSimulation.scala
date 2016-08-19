@@ -28,7 +28,7 @@ class LoadSimulation extends Simulation {
   }
 
   setUp(
-    scn.inject(atOnceUsers(Config.loadUsers)).protocols(Config.httpConf)
+    scn.inject(rampUsers(Config.loadUsers) over (Config.rampUpLoad)).protocols(Config.httpConf)
   )
 }
 

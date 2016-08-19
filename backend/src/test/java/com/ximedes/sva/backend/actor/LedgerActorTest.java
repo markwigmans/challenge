@@ -34,8 +34,8 @@ public class LedgerActorTest extends AbstractActorTest {
             final ActorRef transfers = system.actorOf(TransfersActor.props(100));
             final ActorRef ledger = system.actorOf(LedgerActor.props(transfers, 50));
             final JavaTestKit probe = new JavaTestKit(system);
+            // TODO Needed ?
             ledger.tell(probe.getRef(), getRef());
-            //expectMsgClass(String.class);
 
             // create an account
             ledger.tell(BackendProtocol.CreateAccountMessage.newBuilder().setAccountId(2).setOverdraft(100).build(), getRef());

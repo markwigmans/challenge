@@ -77,6 +77,7 @@ public class TransfersActor extends AbstractLoggingActor {
     }
 
     void queryTransferRangeRequest(final QueryTransferRangeRequest request) {
+        log().debug("message received: [{}]", TextFormat.shortDebugString(request));
         final QueryTransfersResponse.Builder builder = QueryTransfersResponse.newBuilder();
         builder.addAllTransfers(IntStream.range(request.getStartTransferId(), request.getEndTransferId()).boxed()
                 .map(this::transform)
@@ -86,6 +87,7 @@ public class TransfersActor extends AbstractLoggingActor {
     }
 
     void queryTransfersRequest(final QueryTransfersRequest request) {
+        log().debug("message received: [{}]", TextFormat.shortDebugString(request));
         final QueryTransfersResponse.Builder builder = QueryTransfersResponse.newBuilder();
         builder.addAllTransfers(request.getTransferIdsList().stream()
                 .map(this::transform)

@@ -49,7 +49,7 @@ public class BackendProxy extends AbstractActorWithUnboundedStash {
         return Props.create(BackendProxy.class, actorType);
     }
 
-    BackendProxy(final ClusterActors actorType) {
+    private BackendProxy(final ClusterActors actorType) {
         this.actorType = actorType;
 
         unconnected = ReceiveBuilder
@@ -68,7 +68,7 @@ public class BackendProxy extends AbstractActorWithUnboundedStash {
         context().become(unconnected);
     }
 
-    void BackendRegistration(ClusterProtocol.BackendRegistration message) {
+    private void BackendRegistration(ClusterProtocol.BackendRegistration message) {
         log.info("BackendRegistration ({})", actorType);
 
         final List<ClusterProtocol.ActorReference> refs = message.getActorsList()
@@ -86,7 +86,7 @@ public class BackendProxy extends AbstractActorWithUnboundedStash {
         }
     }
 
-    void actorIdentity(final ActorIdentity message) {
+    private void actorIdentity(final ActorIdentity message) {
         if (message.correlationId().equals(identifyId)) {
             // identity found
             remoteActor = message.getRef();
@@ -97,7 +97,8 @@ public class BackendProxy extends AbstractActorWithUnboundedStash {
         }
     }
 
-    void forward(final Object message) {
+    private void forward(final Object message) {
+        log.debug("forward ({}) : '{}'", actorType, message);
         remoteActor.forward(message, getContext());
     }
 }

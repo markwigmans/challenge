@@ -18,6 +18,8 @@ package sva
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
+import scala.concurrent.duration._
+
 /**
   * Created by mawi on 23/07/2016.
   */
@@ -32,13 +34,21 @@ object Config {
 
   // Number of runs per user during initialisation
   val initUsers = 200
+  val rampUpInit = 10 seconds
 
   /*
-  val accounts = 2970
-  val merchants = 30
-  val initUsers = 2
+    val accounts = 2970
+    val merchants = 30
+    val initUsers = 2
   */
 
   val transfers = 1000000
   val loadUsers = 200
+  val rampUpLoad = 10 seconds
+
+  /*
+    val transfers = 1000
+    val loadUsers = 2
+  */
+
 }

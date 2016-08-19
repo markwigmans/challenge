@@ -56,7 +56,7 @@ class CheckSimulation extends Simulation {
   val transferScn = scenario("transfers").exec(queryTransfersChain, queryTransactionsChain)
 
   setUp(
-    accountScn.inject(atOnceUsers(Config.initUsers)).protocols(Config.httpConf)
-    , transferScn.inject(atOnceUsers(Config.loadUsers)).protocols(Config.httpConf)
+    accountScn.inject(rampUsers(Config.initUsers) over (Config.rampUpInit)).protocols(Config.httpConf)
+    , transferScn.inject(rampUsers(Config.loadUsers) over (Config.rampUpLoad)).protocols(Config.httpConf)
   )
 }

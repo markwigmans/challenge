@@ -41,6 +41,6 @@ class InitSimulation extends Simulation {
 
   setUp(
     init.inject(atOnceUsers(1)).protocols(Config.httpConf)
-    , scn.inject(atOnceUsers(Config.initUsers)).protocols(Config.httpConf)
+    , scn.inject(rampUsers(Config.initUsers) over (Config.rampUpInit)).protocols(Config.httpConf)
   )
 }
