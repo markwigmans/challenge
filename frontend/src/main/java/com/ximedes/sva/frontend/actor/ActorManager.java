@@ -22,7 +22,7 @@ import akka.routing.RoundRobinPool;
 import akka.util.Timeout;
 import com.ximedes.sva.frontend.FrontendConfig;
 import com.ximedes.sva.shared.ClusterActors;
-import com.ximedes.sva.shared.ClusterRoles;
+import com.ximedes.sva.shared.ClusterConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -68,7 +68,7 @@ public class ActorManager {
         this.resetActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(ResetActor.props(), "resetActor"), timeout).toCompletableFuture().get();
 
         // register frontend to the cluster
-        system.actorOf(ClusterManager.props(idActor, ledger, transfers), ClusterRoles.FRONTEND.getName());
+        system.actorOf(ClusterManager.props(idActor, ledger, transfers), ClusterConstants.FRONTEND);
     }
 
     public ActorRef getLedger() {

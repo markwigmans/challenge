@@ -19,13 +19,17 @@ import akka.actor.ActorSystem;
 import akka.util.Timeout;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import com.ximedes.sva.shared.ClusterRoles;
+import com.ximedes.sva.shared.ClusterConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -51,11 +55,31 @@ public class FrontendConfig {
     @Value("${id.pool.resize.factor:1.5}")
     private float resizeFactor;
 
+    @Value("${seed.hostname:127.0.0.1}")
+    private String seedHostName;
+    @Value("${seed.port:2550}")
+    private int seedPort;
+
+    @Value("${clustering.hostname:127.0.0.1}")
+    private String hostName;
+    @Value("${clustering.port:2551}")
+    private int port;
+
     @Bean
-    ActorSystem actorSystem() {
-        final String roles = String.format("akka.cluster.roles = [%s]", ClusterRoles.FRONTEND.getName());
-        final Config config = ConfigFactory.parseString(roles).withFallback(ConfigFactory.load());
-        return ActorSystem.create("sva-cluster", config);
+    ActorSystem actorSystem() throws UnknownHostException {
+        final Map<String, Object> options = new HashMap<>();
+        options.put("akka.cluster.roles", Arrays.asList(ClusterConstants.FRONTEND));
+        options.put(String.format("akka.cluster.role.%s.min-nr-of-members", ClusterConstants.BACKEND), Integer.toString(1));
+        options.put(String.format("akka.cluster.role.%s.min-nr-of-members", ClusterConstants.FRONTEND), Integer.toString(1));
+
+        options.put("akka.cluster.seed-nodes", Arrays.asList(String.format("akka.tcp://%s@%s:%d", ClusterConstants.CLUSTER, seedHostName, seedPort)));
+        options.put("akka.remote.netty.tcp.hostname", hostName);
+        options.put("akka.remote.netty.tcp.port", Integer.toString(port));
+        options.put("akka.remote.netty.tcp.bind-hostname", "0.0.0.0");
+        options.put("akka.remote.netty.tcp.bind-port", 2551);
+
+        final Config config = ConfigFactory.parseMap(options).withFallback(ConfigFactory.load());
+        return ActorSystem.create(ClusterConstants.CLUSTER, config);
     }
 
     @Bean
@@ -70,6 +94,10 @@ public class FrontendConfig {
         log.info("idPoolSize:{}", idPoolSize);
         log.info("requestFactor:{}", requestFactor);
         log.info("resizeFactor:{}", resizeFactor);
+        log.info("seedHostName:{}", seedHostName);
+        log.info("seedPort:{}", seedPort);
+        log.info("hostName:{}", hostName);
+        log.info("port:{}", port);
     }
 
     public int getLocalIdActorPool() {

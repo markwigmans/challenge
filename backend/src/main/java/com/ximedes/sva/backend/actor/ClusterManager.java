@@ -23,11 +23,11 @@ import akka.cluster.ClusterEvent;
 import akka.cluster.Member;
 import akka.cluster.MemberStatus;
 import akka.japi.pf.ReceiveBuilder;
+import com.ximedes.sva.shared.ClusterConstants;
 
 import static com.ximedes.sva.protocol.ClusterProtocol.ActorReference;
 import static com.ximedes.sva.protocol.ClusterProtocol.BackendRegistration;
 import static com.ximedes.sva.shared.ClusterActors.*;
-import static com.ximedes.sva.shared.ClusterRoles.FRONTEND;
 
 /**
  * Created by mawi on 16/08/2016.
@@ -75,7 +75,7 @@ public class ClusterManager extends AbstractLoggingActor {
     void register(final Member member) {
         log().debug("register: roles [{}]", String.join(",", member.getRoles()));
 
-        if (member.hasRole(FRONTEND.getName())) {
+        if (member.hasRole(ClusterConstants.FRONTEND)) {
             final String idActorPath = idActor.path().toStringWithAddress(getContext().provider().getDefaultAddress());
             final String ledgerPath = ledger.path().toStringWithAddress(getContext().provider().getDefaultAddress());
             final String transfersPath = transferRepository.path().toStringWithAddress(getContext().provider().getDefaultAddress());
@@ -86,7 +86,7 @@ public class ClusterManager extends AbstractLoggingActor {
                     .addActors(ActorReference.newBuilder().setId(TRANSFERS.toString()).setActorPath(transfersPath).build())
                     .build();
 
-            final String actorPath = String.format("%s/user/%s", member.address(), FRONTEND.getName());
+            final String actorPath = String.format("%s/user/%s", member.address(), ClusterConstants.FRONTEND);
             log().info("register: '{}'", actorPath);
             getContext().actorSelection(actorPath).tell(message, self());
         }

@@ -33,7 +33,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <akka.version>2.4.8</akka.version>
+        <akka.version>2.4.9</akka.version>
         <kamon.version>0.6.2</kamon.version>
 
         <docker.image.prefix>sva</docker.image.prefix>
@@ -144,16 +144,24 @@
                 <version>1.16.10</version>
             </dependency>
 
+            <!--
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>4.1</version>
             </dependency>
+            -->
 
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
                 <version>2.6.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sourceforge.argparse4j</groupId>
+                <artifactId>argparse4j</artifactId>
+                <version>0.7.0</version>
             </dependency>
 
 

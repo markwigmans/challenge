@@ -18,6 +18,11 @@ package com.ximedes.sva.frontend;
 import com.ximedes.sva.shared.BuildInfo;
 import kamon.Kamon;
 import lombok.extern.slf4j.Slf4j;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
@@ -28,13 +33,24 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @EnableAutoConfiguration
 @ComponentScan(basePackageClasses = {FrontendConfig.class, BuildInfo.class})
-@Slf4j
 public class FrontendApplication {
     /**
      * Start the whole application
      */
     public static void main(final String[] args) {
-        Kamon.start();
-        SpringApplication.run(FrontendApplication.class, args);
+        final ArgumentParser parser = ArgumentParsers.newArgumentParser("frontend")
+                .defaultHelp(true)
+                .description("SVA Challenge frontend");
+        parser.addArgument("-m", "--monitor").help("statsd monitoring").action(Arguments.storeTrue());
+
+        try {
+            final Namespace res = parser.parseArgs(args);
+            if (res.getBoolean("monitor")) {
+                Kamon.start();
+            }
+            SpringApplication.run(FrontendApplication.class, args);
+        } catch (ArgumentParserException e) {
+            parser.handleError(e);
+        }
     }
 }

@@ -18,4 +18,5 @@ FROM java:8-alpine
 VOLUME /tmp
 ADD backend.jar app.jar
 RUN sh -c 'touch /app.jar'
+EXPOSE 2550
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]

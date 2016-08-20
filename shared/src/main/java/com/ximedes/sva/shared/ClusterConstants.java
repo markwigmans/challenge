@@ -18,18 +18,8 @@ package com.ximedes.sva.shared;
 /**
  * The roles within the cluster
  */
-public enum ClusterRoles {
-    BACKEND("backend"),
-    FRONTEND("frontend");
-
-    private final String name;
-
-
-    ClusterRoles(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
+public class ClusterConstants {
+    public static final String BACKEND = "backend";
+    public static final String FRONTEND = "frontend";
+    public static final String CLUSTER = "sva-cluster";
 }

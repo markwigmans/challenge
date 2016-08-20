@@ -19,13 +19,16 @@ import akka.actor.ActorSystem;
 import akka.util.Timeout;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import com.ximedes.sva.shared.ClusterRoles;
+import com.ximedes.sva.shared.ClusterConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -47,11 +50,26 @@ public class BackendConfig {
     @Value("${transfer.pool:1200000}")
     private int transferPoolSize;
 
+    @Value("${clustering.hostname:127.0.0.1}")
+    private String hostName;
+    @Value("${clustering.port:2550}")
+    private int port;
+
     @Bean
     ActorSystem actorSystem() {
-        final String roles = String.format("akka.cluster.roles = [%s]", ClusterRoles.BACKEND.getName());
-        final Config config = ConfigFactory.parseString(roles).withFallback(ConfigFactory.load());
-        return ActorSystem.create("sva-cluster", config);
+        final Map<String, Object> options = new HashMap<>();
+        options.put("akka.cluster.roles", Arrays.asList(ClusterConstants.BACKEND));
+        options.put(String.format("akka.cluster.role.%s.min-nr-of-members", ClusterConstants.BACKEND), Integer.toString(1));
+        options.put(String.format("akka.cluster.role.%s.min-nr-of-members", ClusterConstants.FRONTEND), Integer.toString(1));
+
+        options.put("akka.cluster.seed-nodes", Arrays.asList(String.format("akka.tcp://%s@%s:%d", ClusterConstants.CLUSTER, hostName, port)));
+        options.put("akka.remote.netty.tcp.hostname", hostName);
+        options.put("akka.remote.netty.tcp.port", Integer.toString(port));
+        options.put("akka.remote.netty.tcp.bind-hostname", "0.0.0.0");
+        options.put("akka.remote.netty.tcp.bind-port", 2550);
+
+        final Config config = ConfigFactory.parseMap(options).withFallback(ConfigFactory.load());
+        return ActorSystem.create(ClusterConstants.CLUSTER, config);
     }
 
     @Bean
@@ -64,6 +82,8 @@ public class BackendConfig {
         log.info("timeout:{}", timeout);
         log.info("accountPoolSize:{}", accountPoolSize);
         log.info("transferPoolSize:{}", transferPoolSize);
+        log.info("hostName:{}", hostName);
+        log.info("port:{}", port);
     }
 
     public int getAccountPoolSize() {
