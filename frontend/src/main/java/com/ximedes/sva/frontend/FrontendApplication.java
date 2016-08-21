@@ -41,7 +41,7 @@ public class FrontendApplication {
         final ArgumentParser parser = ArgumentParsers.newArgumentParser("frontend")
                 .defaultHelp(true)
                 .description("SVA Challenge frontend");
-        parser.addArgument("-m", "--monitor").help("statsd monitoring").action(Arguments.storeTrue());
+        parser.addArgument("-m", "--monitor").help("kamon monitoring").action(Arguments.storeTrue());
 
         try {
             final Namespace res = parser.parseArgs(args);

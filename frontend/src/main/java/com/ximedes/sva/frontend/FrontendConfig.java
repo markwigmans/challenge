@@ -65,6 +65,11 @@ public class FrontendConfig {
     @Value("${clustering.port:2551}")
     private int port;
 
+    @Value("${monitoring.hostname:127.0.0.1}")
+    private String monitoringdHostName;
+    @Value("${monitoring.port:8125}")
+    private int monitoringPort;
+
     @Bean
     ActorSystem actorSystem() throws UnknownHostException {
         final Map<String, Object> options = new HashMap<>();
@@ -78,6 +83,9 @@ public class FrontendConfig {
         options.put("akka.remote.netty.tcp.bind-hostname", "0.0.0.0");
         options.put("akka.remote.netty.tcp.bind-port", 2551);
 
+        options.put("kamon.statsd.hostname", monitoringdHostName);
+        options.put("kamon.statsd.port", monitoringPort);
+
         final Config config = ConfigFactory.parseMap(options).withFallback(ConfigFactory.load());
         return ActorSystem.create(ClusterConstants.CLUSTER, config);
     }
@@ -89,15 +97,22 @@ public class FrontendConfig {
 
     @PostConstruct
     void postConstruct() {
-        log.info("timeout:{}", timeout);
-        log.info("localIdActorPool:{}", localIdActorPool);
-        log.info("idPoolSize:{}", idPoolSize);
-        log.info("requestFactor:{}", requestFactor);
-        log.info("resizeFactor:{}", resizeFactor);
-        log.info("seedHostName:{}", seedHostName);
-        log.info("seedPort:{}", seedPort);
-        log.info("hostName:{}", hostName);
-        log.info("port:{}", port);
+        log.info("actor.ask.timeout.ms:{} ms", timeout);
+
+        log.info("actor.idActor.pool:{}", localIdActorPool);
+
+        log.info("id.pool:{}", idPoolSize);
+        log.info("id.pool.request.factor:{}", requestFactor);
+        log.info("id.pool.resize.factor:{}", resizeFactor);
+
+        log.info("seed.hostname:{}", seedHostName);
+        log.info("seed.port:{}", seedPort);
+
+        log.info("clustering.hostname:{}", hostName);
+        log.info("clustering.por:{}", port);
+
+        log.info("monitoring.hostname:{}", monitoringdHostName);
+        log.info("monitoring.port:{}", monitoringPort);
     }
 
     public int getLocalIdActorPool() {

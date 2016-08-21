@@ -23,9 +23,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
@@ -50,7 +48,7 @@ public class BackendApplication {
         final ArgumentParser parser = ArgumentParsers.newArgumentParser("backend")
                 .defaultHelp(true)
                 .description("SVA Challenge backend");
-        parser.addArgument("-m", "--monitor").help("statsd monitoring").action(Arguments.storeTrue());
+        parser.addArgument("-m", "--monitor").help("kamon monitoring").action(Arguments.storeTrue());
 
         try {
             final Namespace res = parser.parseArgs(args);

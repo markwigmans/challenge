@@ -144,14 +144,6 @@
                 <version>1.16.10</version>
             </dependency>
 
-            <!--
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-collections4</artifactId>
-                <version>4.1</version>
-            </dependency>
-            -->
-
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
@@ -164,6 +156,11 @@
                 <version>0.7.0</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>1.8.9</version>
+            </dependency>
 
             <!-- test frameworks -->
             <dependency>
@@ -331,6 +328,31 @@
                             </resource>
                         </resources>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.10</version>
+                    <executions>
+                        <execution>
+                            <id>copy</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>copy</goal>
+                            </goals>
+                            <configuration>
+                                <artifactItems>
+                                    <artifactItem>
+                                        <groupId>org.aspectj</groupId>
+                                        <artifactId>aspectjweaver</artifactId>
+                                        <overWrite>false</overWrite>
+                                        <outputDirectory>${project.build.directory}/docker</outputDirectory>
+                                        <destFileName>aspectj-weaver.jar</destFileName>
+                                    </artifactItem>
+                                </artifactItems>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>

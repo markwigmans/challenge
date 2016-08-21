@@ -14,9 +14,10 @@
 # limitations under the License.
 #
 
-FROM java:8-alpine
+FROM frolvlad/alpine-oraclejdk8:slim
 VOLUME /tmp
 ADD backend.jar app.jar
+ADD aspectj-weaver.jar aspectj-weaver.jar
 RUN sh -c 'touch /app.jar'
 EXPOSE 2550
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -javaagent:/aspectj-weaver.jar -jar /app.jar $APP_ARGS

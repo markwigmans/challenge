@@ -55,6 +55,11 @@ public class BackendConfig {
     @Value("${clustering.port:2550}")
     private int port;
 
+    @Value("${monitoring.hostname:127.0.0.1}")
+    private String monitoringdHostName;
+    @Value("${monitoring.port:8125}")
+    private int monitoringPort;
+
     @Bean
     ActorSystem actorSystem() {
         final Map<String, Object> options = new HashMap<>();
@@ -79,11 +84,16 @@ public class BackendConfig {
 
     @PostConstruct
     void postConstruct() {
-        log.info("timeout:{}", timeout);
-        log.info("accountPoolSize:{}", accountPoolSize);
-        log.info("transferPoolSize:{}", transferPoolSize);
-        log.info("hostName:{}", hostName);
-        log.info("port:{}", port);
+        log.info("actor.ask.timeout.ms:{} ms", timeout);
+
+        log.info("account.pool:{}", accountPoolSize);
+        log.info("transfer.pool:{}", transferPoolSize);
+
+        log.info("clustering.hostname:{}", hostName);
+        log.info("clustering.por:{}", port);
+
+        log.info("monitoring.hostname:{}", monitoringdHostName);
+        log.info("monitoring.port:{}", monitoringPort);
     }
 
     public int getAccountPoolSize() {
