@@ -26,7 +26,7 @@ import scala.concurrent.duration._
 object Config {
 
   // URL of the System Under Test
-  val httpConf = http.baseURL("http://localhost:8080/")
+  val httpConf = http.baseURL("http://localhost:80/")
 
   // Number of accounts
   val accounts = 297000

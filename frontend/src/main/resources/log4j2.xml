@@ -32,7 +32,9 @@
         </RollingFile>
 
         <Async name="async">
+            <!--
             <AppenderRef ref="RollingFile"/>"
+            -->
             <AppenderRef ref="console"/>
         </Async>
     </Appenders>

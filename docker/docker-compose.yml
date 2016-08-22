@@ -1,22 +1,60 @@
 version: '2'
 
 services:
+  # template for front-1, front-2, front-3
   frontend:
     image: sva/frontend
-    links:
-      - backend
     ports:
-      - "2551:2551"
-      - "8080:8080"
+      - "2551"
+      - "8080"
     environment:
       - seed.hostname=backend
-      - clustering.hostname=frontend
+      - actor.ask.timeout.ms=60000
       - JAVA_OPTS=-Xmx256m -Xss256k
+      # needed for haproxy
+      - EXCLUDE_PORTS=2551
+
+  front-1:
+    extends:
+      service: frontend
+    links:
+      - backend
+    environment:
+      - clustering.hostname=front-1
+
+  front-2:
+    extends:
+      service: frontend
+    links:
+      - backend
+    environment:
+      - clustering.hostname=front-2
+
+  front-3:
+    extends:
+      service: frontend
+    links:
+      - backend
+    environment:
+      - clustering.hostname=front-3
 
   backend:
     image: sva/backend
     ports:
-      - "2550:2550"
+      - "2550"
     environment:
       - clustering.hostname=backend
+      - actor.ask.timeout.ms=60000
+
+  lb:
+    image: dockercloud/haproxy
+    ports:
+      - "80:80"
+    links:
+      - front-1
+      - front-2
+      - front-3
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
 
