@@ -20,6 +20,7 @@ import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import com.ximedes.sva.frontend.actor.ActorManager;
 import com.ximedes.sva.frontend.message.Transfer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ import java.util.concurrent.CompletableFuture;
 import static com.ximedes.sva.protocol.BackendProtocol.*;
 
 @Service
+@Slf4j
 public class TransferService {
 
     private final ActorRef ledger;
@@ -59,6 +61,9 @@ public class TransferService {
                     .setAmount(request.getAmount()).build();
             ledger.tell(message, ActorRef.noSender());
             return Transfer.builder().transferId(Integer.toString(response.getId())).build();
+        }).exceptionally(ex -> {
+            log.error("Unrecoverable error", ex);
+            return null;
         });
     }
 
@@ -84,6 +89,9 @@ public class TransferService {
                 default:
                     return null;
             }
+        }).exceptionally(ex -> {
+            log.error("Unrecoverable error", ex);
+            return null;
         });
     }
 }

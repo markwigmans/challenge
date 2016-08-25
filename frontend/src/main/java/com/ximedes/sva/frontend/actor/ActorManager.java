@@ -27,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by mawi on 13/11/2015.
  */
@@ -45,10 +47,11 @@ public class ActorManager {
      * Auto wired constructor
      */
     @Autowired
-    ActorManager(final ActorSystem system, final Timeout timeout, final FrontendConfig config) throws Exception {
+    ActorManager(final ActorSystem system, final FrontendConfig config) throws Exception {
         this.system = system;
 
         final int localIdActorPool = config.getLocalIdActorPool();
+        final Timeout timeout = Timeout.apply(config.getCreationTimeout(), TimeUnit.SECONDS);
 
         system.actorOf(EventStreamActor.props(), "eventStreamActor");
 

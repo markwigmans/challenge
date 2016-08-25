@@ -28,12 +28,12 @@ class InitSimulation extends Simulation {
 
   val accountChain =
     repeat((Config.accounts / Config.initUsers).get) {
-      exec(http("create accounts").post("account").body(StringBody("""{}""")).asJSON.check(status.is(202)))
+      exec(http("create accounts").post("account").body(StringBody("""{}""")).asJSON.check(status.in(202,503)))
     }
 
   val merchantChain =
     repeat((Config.merchants / Config.initUsers).get) {
-      exec(http("create merchants").post("account").body(StringBody("""{"overdraft" : 100000}""")).asJSON.check(status.is(202)))
+      exec(http("create merchants").post("account").body(StringBody("""{"overdraft" : 100000}""")).asJSON.check(status.in(202,503)))
     }
 
   val init = scenario("init").exec(initChain)

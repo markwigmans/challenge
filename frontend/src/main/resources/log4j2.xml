@@ -23,24 +23,22 @@
             <ThresholdFilter level="info"/>
         </Console>
 
-        <RollingFile name="RollingFile" fileName="logs/frontend.log" filePattern="logs/frontend-%i.log">
-            <PatternLayout pattern="%d %-5p [%t] [%X{akkaSource}] %c{1.} - %m%n"/>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="200 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
+        <!--
+        <Socket name="logstash" host="logstash" port="7000">
+            <SerializedLayout />
+        </Socket>
+        -->
 
         <Async name="async">
             <!--
-            <AppenderRef ref="RollingFile"/>"
+            <AppenderRef ref="logstash"/>"
             -->
             <AppenderRef ref="console"/>
         </Async>
     </Appenders>
 
     <Loggers>
-        <Logger name="com.ximedes.sva" level="debug"/>
+        <Logger name="com.ximedes.sva" level="info"/>
 
         <Root level="info">
             <AppenderRef ref="async"/>

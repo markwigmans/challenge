@@ -45,6 +45,7 @@ public class SimulationService {
 
     public void reset() throws Exception {
         log.info("Reset simulation");
+        // TODO check if all the intended actors have send a response
         PatternsCS.ask(resetActor, Reset.getDefaultInstance(), Timeout.apply(10, TimeUnit.SECONDS)).toCompletableFuture().get();
     }
 }

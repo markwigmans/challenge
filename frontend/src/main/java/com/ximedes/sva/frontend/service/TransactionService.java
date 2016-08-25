@@ -20,6 +20,7 @@ import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import com.ximedes.sva.frontend.actor.ActorManager;
 import com.ximedes.sva.frontend.message.Transaction;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ import static com.ximedes.sva.protocol.BackendProtocol.QueryTransferRequest;
 import static com.ximedes.sva.protocol.BackendProtocol.QueryTransferResponse;
 
 @Service
+@Slf4j
 public class TransactionService {
 
     private final ActorRef transfers;
@@ -61,6 +63,9 @@ public class TransactionService {
                 default:
                     return null;
             }
+        }).exceptionally(ex -> {
+            log.error("Unrecoverable error", ex);
+            return null;
         });
     }
 }

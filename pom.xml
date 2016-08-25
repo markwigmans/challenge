@@ -10,7 +10,7 @@
     <parent>
         <groupId>io.spring.platform</groupId>
         <artifactId>platform-bom</artifactId>
-        <version>2.0.7.RELEASE</version>
+        <version>Athens-RC1</version>
         <relativePath/>
     </parent>
 
@@ -136,18 +136,6 @@
                 <groupId>io.kamon</groupId>
                 <artifactId>kamon-autoweave_2.11</artifactId>
                 <version>${kamon.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.16.10</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.google.protobuf</groupId>
-                <artifactId>protobuf-java</artifactId>
-                <version>2.6.1</version>
             </dependency>
 
             <dependency>

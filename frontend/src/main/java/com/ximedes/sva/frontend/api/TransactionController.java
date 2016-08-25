@@ -15,7 +15,7 @@
  */
 package com.ximedes.sva.frontend.api;
 
-import com.ximedes.sva.frontend.message.Transaction;
+
 import com.ximedes.sva.frontend.service.TransactionService;
 import kamon.annotation.EnableKamon;
 import kamon.annotation.Trace;
@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -44,15 +45,16 @@ class TransactionController {
 
     @Trace("queryTransaction")
     @RequestMapping(value = "/transaction/{transactionId}", method = RequestMethod.GET)
-    public ResponseEntity<Transaction> queryTransaction(@PathVariable String transactionId) throws ExecutionException, InterruptedException {
+    public CompletableFuture<ResponseEntity> queryTransaction(@PathVariable String transactionId) throws ExecutionException, InterruptedException {
         log.debug("queryTransaction({})", transactionId);
 
-        final Transaction transaction = service.queryTransaction(transactionId).get();
-
-        if (transaction != null) {
-            return new ResponseEntity(transaction, HttpStatus.OK);
-        } else {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
+        return service.queryTransaction(transactionId).thenApply(transaction -> {
+            if (transaction != null) {
+                return new ResponseEntity(transaction, HttpStatus.OK);
+            } else {
+                return new ResponseEntity(HttpStatus.NOT_FOUND);
+            }
+        });
     }
 }
+

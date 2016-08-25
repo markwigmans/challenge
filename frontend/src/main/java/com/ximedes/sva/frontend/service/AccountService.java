@@ -20,6 +20,7 @@ import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import com.ximedes.sva.frontend.actor.ActorManager;
 import com.ximedes.sva.frontend.message.Account;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ import java.util.concurrent.CompletableFuture;
 import static com.ximedes.sva.protocol.BackendProtocol.*;
 
 @Service
+@Slf4j
 public class AccountService {
 
     private final ActorRef ledger;
@@ -53,6 +55,9 @@ public class AccountService {
             final IdResponse response = (IdResponse) r;
             ledger.tell(CreateAccountMessage.newBuilder().setAccountId(response.getId()).setOverdraft(overDraft).build(), ActorRef.noSender());
             return Account.builder().accountId(Integer.toString(response.getId())).build();
+        }).exceptionally(ex -> {
+            log.error("Unrecoverable error", ex);
+            return null;
         });
     }
 
@@ -73,6 +78,9 @@ public class AccountService {
                 default:
                     return null;
             }
+        }).exceptionally(ex -> {
+            log.error("Unrecoverable error", ex);
+            return null;
         });
     }
 }

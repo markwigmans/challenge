@@ -25,7 +25,7 @@ import akka.cluster.MemberStatus;
 import akka.japi.pf.ReceiveBuilder;
 import com.ximedes.sva.shared.ClusterConstants;
 
-import static com.ximedes.sva.protocol.ClusterProtocol.ActorReference;
+import static com.ximedes.sva.protocol.ClusterProtocol.*;
 import static com.ximedes.sva.protocol.ClusterProtocol.BackendRegistration;
 import static com.ximedes.sva.shared.ClusterActors.*;
 
@@ -81,9 +81,9 @@ public class ClusterManager extends AbstractLoggingActor {
             final String transfersPath = transferRepository.path().toStringWithAddress(getContext().provider().getDefaultAddress());
 
             BackendRegistration message = BackendRegistration.newBuilder()
-                    .addActors(ActorReference.newBuilder().setId(ID_GENERATOR.toString()).setActorPath(idActorPath).build())
-                    .addActors(ActorReference.newBuilder().setId(LEDGER.toString()).setActorPath(ledgerPath).build())
-                    .addActors(ActorReference.newBuilder().setId(TRANSFERS.toString()).setActorPath(transfersPath).build())
+                    .addActors(Actor.newBuilder().setType(ID_GENERATOR.toString()).setActorPath(idActorPath).build())
+                    .addActors(Actor.newBuilder().setType(LEDGER.toString()).setActorPath(ledgerPath).build())
+                    .addActors(Actor.newBuilder().setType(TRANSFERS.toString()).setActorPath(transfersPath).build())
                     .build();
 
             final String actorPath = String.format("%s/user/%s", member.address(), ClusterConstants.FRONTEND);

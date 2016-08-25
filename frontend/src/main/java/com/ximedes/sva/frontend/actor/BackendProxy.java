@@ -71,9 +71,9 @@ public class BackendProxy extends AbstractActorWithUnboundedStash {
     private void BackendRegistration(ClusterProtocol.BackendRegistration message) {
         log.info("BackendRegistration ({})", actorType);
 
-        final List<ClusterProtocol.ActorReference> refs = message.getActorsList()
+        final List<ClusterProtocol.Actor> refs = message.getActorsList()
                 .stream()
-                .filter(r -> r.getId().equals(actorType.toString()))
+                .filter(r -> r.getType().equals(actorType.toString()))
                 .collect(Collectors.toList());
         if (!refs.isEmpty()) {
             // actorPath found, so let's ask it's identity for it's actorRef

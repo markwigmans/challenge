@@ -154,7 +154,7 @@ class LocalIdActor extends AbstractActorWithUnboundedStash {
             queueResized = false;
             requestIds(preferredSize);
 
-            // TODO race condition if there is still an IdRangeRequest pending
+            // TODO race condition if there is still an IdRangeRequest pending (due to a test reset)
         }
 
         /**

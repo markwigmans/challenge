@@ -45,6 +45,9 @@ public class FrontendConfig {
     @Value("${actor.ask.timeout.ms:5000}")
     private int timeout;
 
+    @Value("${actor.creation.timeout.s:60}")
+    private int creationTimeout;
+
     @Value("${actor.idActor.pool:8}")
     private int localIdActorPool;
 
@@ -113,6 +116,10 @@ public class FrontendConfig {
 
         log.info("monitoring.hostname:{}", monitoringdHostName);
         log.info("monitoring.port:{}", monitoringPort);
+    }
+
+    public int getCreationTimeout() {
+        return creationTimeout;
     }
 
     public int getLocalIdActorPool() {

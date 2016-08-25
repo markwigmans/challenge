@@ -2,10 +2,10 @@ option java_package = "com.ximedes.sva.protocol";
 option java_outer_classname = "ClusterProtocol";
 
 message BackendRegistration {
-    repeated ActorReference actors = 1;
+    repeated Actor actors = 1;
 }
 
-message ActorReference {
-    required string id = 1;
+message Actor {
+    required string type = 1;
     required string actor_path = 2;
 }

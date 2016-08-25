@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -44,27 +45,34 @@ class TransferController {
 
     @Trace("createTransfer")
     @RequestMapping(value = "/transfer", method = RequestMethod.POST)
-    public ResponseEntity createTransfer(@RequestBody Transfer request) throws Exception {
+    public CompletableFuture<ResponseEntity> createTransfer(@RequestBody Transfer request) throws Exception {
         log.debug("createTransfer({})", request);
 
-        final Transfer transfer = transferService.createTransfer(request).get();
-        final URI location = UriComponentsBuilder.newInstance().pathSegment("/transfer", transfer.getTransferId()).build().encode().toUri();
-        final HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.setLocation(location);
-        return new ResponseEntity(responseHeaders, HttpStatus.ACCEPTED);
+        return transferService.createTransfer(request).thenApply(transfer -> {
+            if (transfer != null) {
+                final URI location = UriComponentsBuilder.newInstance().pathSegment("/transfer", transfer.getTransferId()).build().encode().toUri();
+                final HttpHeaders responseHeaders = new HttpHeaders();
+                responseHeaders.setLocation(location);
+                return new ResponseEntity(responseHeaders, HttpStatus.ACCEPTED);
+            } else {
+                // very likely due to a timeout
+                return new ResponseEntity(HttpStatus.SERVICE_UNAVAILABLE);
+            }
+        });
     }
 
     @Trace("queryTransfer")
     @RequestMapping(value = "/transfer/{transferId}", method = RequestMethod.GET)
-    public ResponseEntity<Transfer> queryTransfer(@PathVariable String transferId) throws ExecutionException, InterruptedException {
+    public CompletableFuture<ResponseEntity> queryTransfer(@PathVariable String transferId) throws ExecutionException, InterruptedException {
         log.debug("queryTransfer({})", transferId);
 
-        final Transfer transfer = transferService.queryTransfer(transferId).get();
-
-        if (transfer != null) {
-            return new ResponseEntity(transfer, HttpStatus.OK);
-        } else {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
+        return transferService.queryTransfer(transferId).thenApply(transfer -> {
+            if (transfer != null) {
+                return new ResponseEntity(transfer, HttpStatus.OK);
+            } else {
+                return new ResponseEntity(HttpStatus.NOT_FOUND);
+            }
+        });
     }
 }
+
