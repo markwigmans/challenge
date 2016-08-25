@@ -23,6 +23,8 @@ import com.ximedes.sva.backend.BackendConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by mawi on 13/11/2015.
  */
@@ -33,10 +35,11 @@ class ActorManager {
      * Auto wired constructor
      */
     @Autowired
-    ActorManager(final ActorSystem system, final Timeout timeout, final BackendConfig config) throws Exception {
+    ActorManager(final ActorSystem system, final BackendConfig config) throws Exception {
 
         final int accountPoolSize = config.getAccountPoolSize();
         final int transferPoolSize = config.getTransferPoolSize();
+        final Timeout timeout = Timeout.apply(config.getCreationTimeout(), TimeUnit.SECONDS);
 
         final ActorRef supervisor = system.actorOf(Supervisor.props(), "supervisor");
 

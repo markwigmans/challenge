@@ -26,6 +26,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.time.Duration;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +45,9 @@ public class BackendConfig {
      */
     @Value("${actor.ask.timeout.ms:500}")
     private int timeout;
+
+    @Value("${actor.creation.timeout.s:60}")
+    private int creationTimeout;
 
     @Value("${account.pool:360000}")
     private int accountPoolSize;
@@ -85,6 +90,7 @@ public class BackendConfig {
     @PostConstruct
     void postConstruct() {
         log.info("actor.ask.timeout.ms:{} ms", timeout);
+        log.info("actor.creation.timeout.s:{} s", creationTimeout);
 
         log.info("account.pool:{}", accountPoolSize);
         log.info("transfer.pool:{}", transferPoolSize);
@@ -94,6 +100,10 @@ public class BackendConfig {
 
         log.info("monitoring.hostname:{}", monitoringdHostName);
         log.info("monitoring.port:{}", monitoringPort);
+    }
+
+    public int getCreationTimeout() {
+        return creationTimeout;
     }
 
     public int getAccountPoolSize() {

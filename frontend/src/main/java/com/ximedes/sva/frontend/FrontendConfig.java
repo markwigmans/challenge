@@ -101,6 +101,7 @@ public class FrontendConfig {
     @PostConstruct
     void postConstruct() {
         log.info("actor.ask.timeout.ms:{} ms", timeout);
+        log.info("actor.creation.timeout.s:{} s", creationTimeout);
 
         log.info("actor.idActor.pool:{}", localIdActorPool);
 
