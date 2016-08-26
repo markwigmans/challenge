@@ -50,7 +50,7 @@ class TransferController {
 
         return transferService.createTransfer(request).thenApply(transfer -> {
             if (transfer != null) {
-                final URI location = UriComponentsBuilder.newInstance().pathSegment("/transfer", transfer.getTransferId()).build().encode().toUri();
+                final URI location = UriComponentsBuilder.newInstance().pathSegment("/transfer", transfer.getTransferId()).build().toUri();
                 final HttpHeaders responseHeaders = new HttpHeaders();
                 responseHeaders.setLocation(location);
                 return new ResponseEntity(responseHeaders, HttpStatus.ACCEPTED);

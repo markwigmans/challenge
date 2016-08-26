@@ -50,7 +50,7 @@ class AccountController {
 
         return accountService.createAccount(request).thenApply(account -> {
             if (account != null) {
-                final URI location = UriComponentsBuilder.newInstance().pathSegment("/account", account.getAccountId()).build().encode().toUri();
+                final URI location = UriComponentsBuilder.newInstance().pathSegment("/account", account.getAccountId()).build().toUri();
                 final HttpHeaders responseHeaders = new HttpHeaders();
                 responseHeaders.setLocation(location);
                 return new ResponseEntity(responseHeaders, HttpStatus.ACCEPTED);
