@@ -63,7 +63,7 @@ public class FrontendConfig {
     @Value("${seed.port:2550}")
     private int seedPort;
 
-    @Value("${clustering.hostname:127.0.0.1}")
+    @Value("${clustering.hostname:}")
     private String hostName;
     @Value("${clustering.port:2551}")
     private int port;

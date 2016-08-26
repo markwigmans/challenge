@@ -25,7 +25,7 @@ import akka.cluster.MemberStatus;
 import akka.japi.pf.ReceiveBuilder;
 import com.ximedes.sva.shared.ClusterConstants;
 
-import static com.ximedes.sva.protocol.ClusterProtocol.*;
+import static com.ximedes.sva.protocol.ClusterProtocol.Actor;
 import static com.ximedes.sva.protocol.ClusterProtocol.BackendRegistration;
 import static com.ximedes.sva.shared.ClusterActors.*;
 

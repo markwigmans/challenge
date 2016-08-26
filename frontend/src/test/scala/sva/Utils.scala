@@ -22,7 +22,7 @@ import scala.util.Random
   */
 object Utils {
 
-  // set the seed so the result is reproducible
+  // set the seed so the test result is reproducible
   private val RNG = new Random(1234)
 
   def randInt(a: Int) = RNG.nextInt(a)

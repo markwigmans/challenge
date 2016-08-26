@@ -7,36 +7,14 @@ services:
     ports:
       - "2551"
       - "8080"
+    links:
+      - backend
     environment:
       - seed.hostname=backend
       - actor.ask.timeout.ms=60000
       - JAVA_OPTS=-Xmx256m -Xss256k
       # needed for haproxy
       - EXCLUDE_PORTS=2551
-
-  front-1:
-    extends:
-      service: frontend
-    links:
-      - backend
-    environment:
-      - clustering.hostname=front-1
-
-  front-2:
-    extends:
-      service: frontend
-    links:
-      - backend
-    environment:
-      - clustering.hostname=front-2
-
-  front-3:
-    extends:
-      service: frontend
-    links:
-      - backend
-    environment:
-      - clustering.hostname=front-3
 
   backend:
     image: sva/backend
@@ -51,10 +29,6 @@ services:
     ports:
       - "80:80"
     links:
-      - front-1
-      - front-2
-      - front-3
+      - frontend
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-
-

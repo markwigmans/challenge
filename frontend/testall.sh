@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+mvn gatling:execute -Dgatling.simulationClass=sva.ResetSimulation
 mvn gatling:execute -Dgatling.simulationClass=sva.InitSimulation
 mvn gatling:execute -Dgatling.simulationClass=sva.LoadSimulation
 mvn gatling:execute -Dgatling.simulationClass=sva.CheckSimulation

@@ -28,6 +28,7 @@ object Config {
   // URL of the System Under Test
   val httpConf = http.baseURL("http://localhost:80/")
 
+  /*
   // Number of accounts
   val accounts = 297000
   val merchants = 3000
@@ -35,20 +36,23 @@ object Config {
   // Number of runs per user during initialisation
   val initUsers = 200
   val rampUpInit = 10 seconds
+ */
+
+
+  val accounts = 29700
+  val merchants = 300
+  val initUsers = 20
+  val rampUpInit = 10 seconds
 
   /*
-    val accounts = 2970
-    val merchants = 30
-    val initUsers = 2
+    val transfers = 1000000
+    val loadUsers = 200
+    val rampUpLoad = 10 seconds
   */
 
   val transfers = 1000000
-  val loadUsers = 200
+  val loadUsers = 20
   val rampUpLoad = 10 seconds
 
-  /*
-    val transfers = 1000
-    val loadUsers = 2
-  */
 
 }

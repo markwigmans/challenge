@@ -23,16 +23,12 @@
             <ThresholdFilter level="info"/>
         </Console>
 
-        <!--
         <Socket name="logstash" host="logstash" port="7000">
             <SerializedLayout />
         </Socket>
-        -->
 
         <Async name="async">
-            <!--
             <AppenderRef ref="logstash"/>"
-            -->
             <AppenderRef ref="console"/>
         </Async>
     </Appenders>

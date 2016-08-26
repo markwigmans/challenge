@@ -21,21 +21,12 @@ import io.gatling.http.Predef._
 /**
   * Created by mawi on 23/07/2016.
   */
-class InitSimulation extends Simulation {
+class ResetSimulation extends Simulation {
 
-  val accountChain =
-    repeat((Config.accounts / Config.initUsers).get) {
-      exec(http("create accounts").post("account").body(StringBody("""{}""")).asJSON.check(status.in(202, 503)))
-    }
+  val initChain =
+    exec(http("init simulation").post("reset").check(status.is(200)))
 
-  val merchantChain =
-    repeat((Config.merchants / Config.initUsers).get) {
-      exec(http("create merchants").post("account").body(StringBody("""{"overdraft" : 100000}""")).asJSON.check(status.in(202, 503)))
-    }
+  val init = scenario("init").exec(initChain)
 
-  val scn = scenario("create").exec(merchantChain, accountChain)
-
-  setUp(
-    scn.inject(rampUsers(Config.initUsers) over (Config.rampUpInit)).protocols(Config.httpConf)
-  )
+  setUp(init.inject(atOnceUsers(1)).protocols(Config.httpConf))
 }
