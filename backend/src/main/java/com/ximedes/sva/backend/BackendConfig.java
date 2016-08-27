@@ -53,7 +53,7 @@ public class BackendConfig {
     @Value("${transfer.pool:1200000}")
     private int transferPoolSize;
 
-    @Value("${clustering.hostname:127.0.0.1}")
+    @Value("${clustering.hostname:}")
     private String hostName;
     @Value("${clustering.port:2550}")
     private int port;

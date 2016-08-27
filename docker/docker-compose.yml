@@ -10,6 +10,7 @@ services:
     links:
       - backend
     environment:
+      - spring.profiles.include=docker
       - seed.hostname=backend
       - actor.ask.timeout.ms=60000
       - JAVA_OPTS=-Xmx256m -Xss256k
@@ -21,7 +22,7 @@ services:
     ports:
       - "2550"
     environment:
-      - clustering.hostname=backend
+      - spring.profiles.include=docker
       - actor.ask.timeout.ms=60000
 
   lb:
