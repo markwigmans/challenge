@@ -1,7 +1,6 @@
 version: '2'
 
 services:
-  # template for front-1, front-2, front-3
   frontend:
     image: sva/frontend
     ports:
@@ -13,7 +12,7 @@ services:
       - spring.profiles.include=docker
       - seed.hostname=backend
       - actor.ask.timeout.ms=60000
-      - JAVA_OPTS=-Xmx256m -Xss256k
+      # - JAVA_OPTS=-Xmx256m -Xss256k
       # needed for haproxy
       - EXCLUDE_PORTS=2551
 
@@ -23,6 +22,7 @@ services:
       - "2550"
     environment:
       - spring.profiles.include=docker
+      - clustering.hostname=backend
       - actor.ask.timeout.ms=60000
 
   lb:
@@ -32,4 +32,5 @@ services:
     links:
       - frontend
     volumes:
+      # to retrieve information about other docker images
       - /var/run/docker.sock:/var/run/docker.sock
