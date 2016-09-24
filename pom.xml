@@ -33,7 +33,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <akka.version>2.4.9</akka.version>
+        <akka.version>2.4.10</akka.version>
         <kamon.version>0.6.2</kamon.version>
 
         <docker.image.prefix>sva</docker.image.prefix>
