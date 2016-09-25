@@ -34,3 +34,5 @@ services:
     volumes:
       # to retrieve information about other docker images
       - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+     - OPTION=httpchk get /check
