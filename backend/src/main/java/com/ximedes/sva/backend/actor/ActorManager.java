@@ -36,7 +36,6 @@ class ActorManager {
      */
     @Autowired
     ActorManager(final ActorSystem system, final BackendConfig config) throws Exception {
-
         final int accountPoolSize = config.getAccountPoolSize();
         final int transferPoolSize = config.getTransferPoolSize();
         final Timeout timeout = Timeout.apply(config.getCreationTimeout(), TimeUnit.SECONDS);

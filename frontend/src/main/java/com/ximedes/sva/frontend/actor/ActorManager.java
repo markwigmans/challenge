@@ -36,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ActorManager {
 
-    private final ActorSystem system;
     private final ActorRef transfers;
     private final ActorRef ledger;
     private final ActorRef localIdActorRouter;
@@ -48,8 +47,6 @@ public class ActorManager {
      */
     @Autowired
     ActorManager(final ActorSystem system, final FrontendConfig config) throws Exception {
-        this.system = system;
-
         final int localIdActorPool = config.getLocalIdActorPool();
         final Timeout timeout = Timeout.apply(config.getCreationTimeout(), TimeUnit.SECONDS);
 

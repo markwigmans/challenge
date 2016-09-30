@@ -35,7 +35,6 @@ class SimulationController {
         this.simulationService = simulationService;
     }
 
-
     @RequestMapping(value = "/reset", method = RequestMethod.POST)
     public ResponseEntity reset() throws Exception {
         simulationService.reset();
